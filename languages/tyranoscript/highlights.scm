@@ -13,8 +13,8 @@
  (#match? @keyword "^(if|elsif|else|endif|iscript|endscript|macro|endmacro|jump|call|return|s|for|endfor|while|endwhile|break|continue)$"))
 
 ; クリック待ち系タグ
-((tag_name) @keyword.control
- (#match? @keyword.control "^(l|p|r|er|ct|cm|wd|wait)$"))
+((tag_name) @keyword
+ (#match? @keyword "^(l|p|r|er|ct|cm|wd|wait)$"))
 
 ; 属性名
 (attribute_name) @property

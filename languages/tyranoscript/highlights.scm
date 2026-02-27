@@ -2,6 +2,9 @@
 (tag "[" @punctuation.bracket)
 (tag "]" @punctuation.bracket)
 
+; @タグの@記号
+(at_tag "@" @punctuation.special)
+
 ; タグ名
 (tag_name) @function
 
@@ -19,6 +22,7 @@
 ; 属性値
 (quoted_string) @string
 (unquoted_value) @string.special
+(at_unquoted_value) @string.special
 
 ; コメント
 (comment) @comment

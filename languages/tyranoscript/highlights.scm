@@ -39,3 +39,7 @@
 
 ; インラインテキスト
 (inline_text) @operator
+
+; スクリプトブロックの開始・終了タグ
+(script_block "[iscript]" @keyword)
+(script_block "[endscript]" @keyword)

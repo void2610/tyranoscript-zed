@@ -1,0 +1,10 @@
+name = "TyranoScript"
+grammar = "tyranoscript"
+path_suffixes = ["ks"]
+line_comments = ["; "]
+tab_size = 2
+autoclose_before = "]}\""
+brackets = [
+    { start = "[", end = "]", close = true, newline = false },
+    { start = "\"", end = "\"", close = true, newline = false, not_in = ["comment", "string"] },
+]

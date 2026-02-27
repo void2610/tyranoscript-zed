@@ -8,4 +8,4 @@ repository = "https://github.com/void2610/tyranoscript-zed"
 
 [grammars.tyranoscript]
 repository = "https://github.com/void2610/tree-sitter-tyranoscript"
-commit = "95ecf2ea22b3e36acfad9a7bdb52041bbf48d31e"
+commit = "0b78be85cfe107e5a0738d77ab2a232bc0e67412"

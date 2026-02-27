@@ -1,5 +1,7 @@
 target/
 node_modules/
+grammars/
 *.log
+*.wasm
 .DS_Store
 lsp/dist/

@@ -24,9 +24,8 @@
 (unquoted_value) @string.special
 (at_unquoted_value) @string.special
 
-; 話者表示（#記号）
-(speaker "#" @punctuation.special)
-(speaker_name) @title
+; 話者表示（#記号と話者名を同じ色に）
+(speaker) @punctuation.special
 
 ; コメント
 (comment) @comment
@@ -36,7 +35,7 @@
 (label_name) @label
 
 ; テキスト行
-(text_line) @string.special.symbol
+(text_line) @operator
 
 ; インラインテキスト
-(inline_text) @string.special.symbol
+(inline_text) @operator

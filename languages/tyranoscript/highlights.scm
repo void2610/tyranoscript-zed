@@ -24,6 +24,10 @@
 (unquoted_value) @string.special
 (at_unquoted_value) @string.special
 
+; 話者表示（#記号）
+(speaker "#" @punctuation.special)
+(speaker_name) @title
+
 ; コメント
 (comment) @comment
 

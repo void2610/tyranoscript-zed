@@ -12,7 +12,7 @@
   value: (attribute_value
     (quoted_string
       (string_content) @content)))
- (#match? @_attr_name "^(exp|cond)$")
+ (#match? @_attr_name "^\\s*(exp|cond)$")
  (#set! "language" "javascript"))
 
 ; @タグの exp/cond 属性値をJavaScriptとしてハイライト
@@ -21,5 +21,5 @@
   value: (at_attribute_value
     (quoted_string
       (string_content) @content)))
- (#match? @_attr_name "^(exp|cond)$")
+ (#match? @_attr_name "^\\s*(exp|cond)$")
  (#set! "language" "javascript"))

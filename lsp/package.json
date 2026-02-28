@@ -4,14 +4,15 @@
   "description": "TyranoScript Language Server",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch"
+    "build": "esbuild src/server.ts --bundle --platform=node --outfile=dist/server.js --format=cjs",
+    "watch": "esbuild src/server.ts --bundle --platform=node --outfile=dist/server.js --format=cjs --watch"
   },
   "dependencies": {
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.11"
   },
   "devDependencies": {
+    "esbuild": "^0.27.3",
     "typescript": "^5.0.0"
   }
 }

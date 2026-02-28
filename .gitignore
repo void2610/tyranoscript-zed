@@ -4,4 +4,3 @@ grammars/
 *.log
 *.wasm
 .DS_Store
-lsp/dist/

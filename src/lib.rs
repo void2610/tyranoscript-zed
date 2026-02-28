@@ -1,8 +1,8 @@
-use std::env;
+use std::{env, fs};
 use zed_extension_api::{self as zed, Result};
 
-/// 拡張ディレクトリ内のLSPサーバースクリプトのパス
-const SERVER_PATH: &str = "lsp/dist/server.js";
+/// ビルド済みLSPサーバーをバイナリに埋め込む
+const SERVER_JS: &[u8] = include_bytes!("../lsp/dist/server.js");
 
 struct TyranoScriptExtension;
 
@@ -16,10 +16,14 @@ impl zed::Extension for TyranoScriptExtension {
         _language_server_id: &zed::LanguageServerId,
         _worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
-        // Zed組み込みのNode.jsバイナリを使用してLSPサーバーを起動
+        // ワーキングディレクトリにサーバースクリプトを書き出す
+        let server_file = "server.js";
+        fs::write(server_file, SERVER_JS)
+            .map_err(|e| format!("LSPサーバーの書き出しに失敗: {e}"))?;
+
         let server_path = env::current_dir()
             .unwrap()
-            .join(SERVER_PATH)
+            .join(server_file)
             .to_string_lossy()
             .to_string();
 

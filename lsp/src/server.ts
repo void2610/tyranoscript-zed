@@ -15,18 +15,30 @@ import {
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { TAG_DATABASE, TAG_NAMES, TagDefinition } from "./tagDatabase";
+import {
+  WorkspaceScanner,
+  TAG_STORAGE_MAPPING,
+} from "./workspaceScanner";
 
 // stdio接続でLSPサーバーを作成
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+const scanner = new WorkspaceScanner();
 
-connection.onInitialize((_params: InitializeParams): InitializeResult => {
+connection.onInitialize((params: InitializeParams): InitializeResult => {
+  // ワークスペースルートを取得しスキャナーを初期化
+  const rootUri = params.rootUri ?? params.workspaceFolders?.[0]?.uri;
+  if (rootUri && scanner.initialize(rootUri)) {
+    // バックグラウンドでスキャン実行
+    scanner.scanAll().catch(() => {});
+  }
+
   return {
     capabilities: {
       textDocumentSync: TextDocumentSyncKind.Incremental,
       completionProvider: {
-        // "[" と "@" で補完をトリガー
-        triggerCharacters: ["[", "@", " "],
+        // "[", "@", スペース, '"' で補完をトリガー
+        triggerCharacters: ["[", "@", " ", '"'],
         resolveProvider: false,
       },
       hoverProvider: true,
@@ -102,6 +114,37 @@ function isTagNameTrigger(lineText: string, character: number): "bracket" | "at"
   }
 
   return null;
+}
+
+/** パラメータ値コンテキスト */
+interface ParamValueContext {
+  tagName: string;
+  paramName: string;
+  currentValue: string;
+}
+
+/**
+ * カーソルが paramName="..." の値入力中にあるかを判定する
+ */
+function getParamValueContext(
+  lineText: string,
+  character: number
+): ParamValueContext | null {
+  // まずタグコンテキストを取得
+  const tagCtx = getTagContext(lineText, character);
+  if (!tagCtx) return null;
+
+  const textUpToCursor = lineText.substring(0, character);
+
+  // パラメータ値の入力中かを判定: paramName="value まで入力している状態
+  const valueMatch = textUpToCursor.match(/(\w+)\s*=\s*"([^"]*)$/);
+  if (!valueMatch) return null;
+
+  return {
+    tagName: tagCtx.tagName,
+    paramName: valueMatch[1],
+    currentValue: valueMatch[2],
+  };
 }
 
 /**
@@ -202,6 +245,63 @@ function createTagDocumentation(tag: TagDefinition): string {
   return doc;
 }
 
+/**
+ * マクロ補完の候補を生成する
+ */
+function createMacroCompletions(trigger: "bracket" | "at"): CompletionItem[] {
+  const macros = scanner.getMacros();
+  return macros.map((macro, index) => {
+    const insertText =
+      trigger === "bracket" ? `${macro.name}]` : macro.name;
+    return {
+      label: macro.name,
+      kind: CompletionItemKind.Function,
+      detail: `マクロ (${macro.file})`,
+      documentation: {
+        kind: MarkupKind.Markdown,
+        value: `**[${macro.name}]** — ユーザー定義マクロ\n\n定義元: \`${macro.file}\` (行 ${macro.line + 1})`,
+      },
+      insertText,
+      insertTextFormat: InsertTextFormat.PlainText,
+      // タグ補完の後に表示（5000番台）
+      sortText: String(5000 + index).padStart(6, "0"),
+    };
+  });
+}
+
+/**
+ * storage パラメータのアセットファイル補完候補を生成する
+ */
+function createStorageCompletions(tagName: string): CompletionItem[] {
+  const category = TAG_STORAGE_MAPPING.get(tagName);
+  if (!category) return [];
+
+  const files = scanner.getAssetsForCategory(category);
+  return files.map((file, index) => ({
+    label: file,
+    kind: CompletionItemKind.File,
+    detail: `${category}/`,
+    sortText: String(index).padStart(4, "0"),
+  }));
+}
+
+/**
+ * target パラメータのラベル補完候補を生成する
+ */
+function createTargetCompletions(): CompletionItem[] {
+  const labels = scanner.getLabels();
+  return labels.map((label, index) => ({
+    label: `*${label.name}`,
+    kind: CompletionItemKind.Reference,
+    detail: label.file,
+    documentation: {
+      kind: MarkupKind.Markdown,
+      value: `ラベル **\*${label.name}**\n\n定義元: \`${label.file}\` (行 ${label.line + 1})`,
+    },
+    sortText: String(index).padStart(4, "0"),
+  }));
+}
+
 // 補完ハンドラ
 connection.onCompletion(
   (params: TextDocumentPositionParams): CompletionItem[] => {
@@ -213,13 +313,28 @@ connection.onCompletion(
       end: { line: params.position.line, character: params.position.character },
     });
 
-    // タグ名補完のトリガー判定
+    // 1. タグ名補完 + マクロ補完: "[" or "@" の直後
     const trigger = isTagNameTrigger(line, params.position.character);
     if (trigger) {
-      return createTagCompletions(trigger);
+      const tagItems = createTagCompletions(trigger);
+      const macroItems = createMacroCompletions(trigger);
+      return [...tagItems, ...macroItems];
     }
 
-    // パラメータ補完の判定
+    // 2. パラメータ値補完: storage="" / target="" の値入力中
+    const valueCtx = getParamValueContext(line, params.position.character);
+    if (valueCtx) {
+      if (valueCtx.paramName === "storage") {
+        return createStorageCompletions(valueCtx.tagName);
+      }
+      if (valueCtx.paramName === "target") {
+        return createTargetCompletions();
+      }
+      // その他のパラメータ値は補完なし
+      return [];
+    }
+
+    // 3. パラメータ名補完
     const context = getTagContext(line, params.position.character);
     if (context && context.isInParams) {
       return createParamCompletions(context.tagName, context.usedParams);
@@ -412,6 +527,26 @@ function getParamHover(
 
   return null;
 }
+
+// KSファイル変更時のインクリメンタル更新（500msデバウンス）
+const updateTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
+documents.onDidChangeContent((change) => {
+  const uri = change.document.uri;
+  if (!uri.endsWith(".ks")) return;
+
+  // 既存タイマーをクリア
+  const existing = updateTimers.get(uri);
+  if (existing) clearTimeout(existing);
+
+  // 500ms後にインデックスを更新
+  updateTimers.set(
+    uri,
+    setTimeout(() => {
+      scanner.updateFile(uri, change.document.getText());
+      updateTimers.delete(uri);
+    }, 500)
+  );
+});
 
 // ドキュメントマネージャーを接続にバインド
 documents.listen(connection);

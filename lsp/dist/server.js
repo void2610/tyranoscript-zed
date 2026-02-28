@@ -3081,7 +3081,7 @@ var require_main = __commonJS({
     exports2.createMessageConnection = exports2.createServerSocketTransport = exports2.createClientSocketTransport = exports2.createServerPipeTransport = exports2.createClientPipeTransport = exports2.generateRandomPipeName = exports2.StreamMessageWriter = exports2.StreamMessageReader = exports2.SocketMessageWriter = exports2.SocketMessageReader = exports2.PortMessageWriter = exports2.PortMessageReader = exports2.IPCMessageWriter = exports2.IPCMessageReader = void 0;
     var ril_1 = require_ril();
     ril_1.default.install();
-    var path = require("path");
+    var path2 = require("path");
     var os = require("os");
     var crypto_1 = require("crypto");
     var net_1 = require("net");
@@ -3217,9 +3217,9 @@ var require_main = __commonJS({
       }
       let result;
       if (XDG_RUNTIME_DIR) {
-        result = path.join(XDG_RUNTIME_DIR, `vscode-ipc-${randomSuffix}.sock`);
+        result = path2.join(XDG_RUNTIME_DIR, `vscode-ipc-${randomSuffix}.sock`);
       } else {
-        result = path.join(os.tmpdir(), `vscode-${randomSuffix}.sock`);
+        result = path2.join(os.tmpdir(), `vscode-${randomSuffix}.sock`);
       }
       const limit = safeIpcPathLengths.get(process.platform);
       if (limit !== void 0 && result.length > limit) {
@@ -8309,8 +8309,8 @@ var require_files = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.resolveModulePath = exports2.FileSystem = exports2.resolveGlobalYarnPath = exports2.resolveGlobalNodePath = exports2.resolve = exports2.uriToFilePath = void 0;
     var url = require("url");
-    var path = require("path");
-    var fs = require("fs");
+    var path2 = require("path");
+    var fs2 = require("fs");
     var child_process_1 = require("child_process");
     function uriToFilePath(uri) {
       let parsed = url.parse(uri);
@@ -8328,7 +8328,7 @@ var require_files = __commonJS({
           segments.shift();
         }
       }
-      return path.normalize(segments.join("/"));
+      return path2.normalize(segments.join("/"));
     }
     exports2.uriToFilePath = uriToFilePath;
     function isWindows() {
@@ -8357,9 +8357,9 @@ var require_files = __commonJS({
         let env = process.env;
         let newEnv = /* @__PURE__ */ Object.create(null);
         Object.keys(env).forEach((key) => newEnv[key] = env[key]);
-        if (nodePath && fs.existsSync(nodePath)) {
+        if (nodePath && fs2.existsSync(nodePath)) {
           if (newEnv[nodePathKey]) {
-            newEnv[nodePathKey] = nodePath + path.delimiter + newEnv[nodePathKey];
+            newEnv[nodePathKey] = nodePath + path2.delimiter + newEnv[nodePathKey];
           } else {
             newEnv[nodePathKey] = nodePath;
           }
@@ -8432,9 +8432,9 @@ var require_files = __commonJS({
         }
         if (prefix.length > 0) {
           if (isWindows()) {
-            return path.join(prefix, "node_modules");
+            return path2.join(prefix, "node_modules");
           } else {
-            return path.join(prefix, "lib", "node_modules");
+            return path2.join(prefix, "lib", "node_modules");
           }
         }
         return void 0;
@@ -8474,7 +8474,7 @@ var require_files = __commonJS({
           try {
             let yarn = JSON.parse(line);
             if (yarn.type === "log") {
-              return path.join(yarn.data, "node_modules");
+              return path2.join(yarn.data, "node_modules");
             }
           } catch (e) {
           }
@@ -8497,24 +8497,24 @@ var require_files = __commonJS({
         if (process.platform === "win32") {
           _isCaseSensitive = false;
         } else {
-          _isCaseSensitive = !fs.existsSync(__filename.toUpperCase()) || !fs.existsSync(__filename.toLowerCase());
+          _isCaseSensitive = !fs2.existsSync(__filename.toUpperCase()) || !fs2.existsSync(__filename.toLowerCase());
         }
         return _isCaseSensitive;
       }
       FileSystem2.isCaseSensitive = isCaseSensitive;
       function isParent(parent, child) {
         if (isCaseSensitive()) {
-          return path.normalize(child).indexOf(path.normalize(parent)) === 0;
+          return path2.normalize(child).indexOf(path2.normalize(parent)) === 0;
         } else {
-          return path.normalize(child).toLowerCase().indexOf(path.normalize(parent).toLowerCase()) === 0;
+          return path2.normalize(child).toLowerCase().indexOf(path2.normalize(parent).toLowerCase()) === 0;
         }
       }
       FileSystem2.isParent = isParent;
     })(FileSystem || (exports2.FileSystem = FileSystem = {}));
     function resolveModulePath(workspaceRoot, moduleName, nodePath, tracer) {
       if (nodePath) {
-        if (!path.isAbsolute(nodePath)) {
-          nodePath = path.join(workspaceRoot, nodePath);
+        if (!path2.isAbsolute(nodePath)) {
+          nodePath = path2.join(workspaceRoot, nodePath);
         }
         return resolve(moduleName, nodePath, nodePath, tracer).then((value) => {
           if (FileSystem.isParent(nodePath, value)) {
@@ -12057,16 +12057,266 @@ vmax\u5C5E\u6027\u30920\u306B\u8A2D\u5B9A\u3059\u308B\u3068\u6A2A\u63FA\u308C\u3
 ]);
 var TAG_NAMES = Array.from(TAG_DATABASE.keys());
 
+// src/workspaceScanner.ts
+var fs = __toESM(require("fs"));
+var path = __toESM(require("path"));
+var TAG_STORAGE_MAPPING = /* @__PURE__ */ new Map([
+  ["bg", "bgimage"],
+  ["bg2", "bgimage"],
+  ["chara_new", "fgimage"],
+  ["chara_face", "fgimage"],
+  ["chara_mod", "fgimage"],
+  ["chara_show", "fgimage"],
+  ["chara_layer", "fgimage"],
+  ["image", "image"],
+  ["cursor", "image"],
+  ["graph", "image"],
+  ["mask", "image"],
+  ["playbgm", "bgm"],
+  ["fadeinbgm", "bgm"],
+  ["xchgbgm", "bgm"],
+  ["playse", "sound"],
+  ["fadeinse", "sound"],
+  ["movie", "video"],
+  ["bgmovie", "video"],
+  ["layer_video", "video"],
+  ["jump", "scenario"],
+  ["call", "scenario"],
+  ["link", "scenario"],
+  ["glink", "scenario"],
+  ["clickable", "scenario"],
+  ["button", "scenario"]
+]);
+var CACHE_TTL = 3e4;
+var WorkspaceScanner = class {
+  constructor() {
+    this.rootPath = "";
+    this.dataPath = "";
+    this.initialized = false;
+    // アセットファイルキャッシュ（カテゴリ別）
+    this.assetCache = /* @__PURE__ */ new Map();
+    // KSファイルインデックス（ファイルパスをキーに）
+    this.ksFileIndices = /* @__PURE__ */ new Map();
+  }
+  /**
+   * ワークスペースルートを設定しdataディレクトリの存在を確認する
+   */
+  initialize(rootUri) {
+    try {
+      const url = new URL(rootUri);
+      this.rootPath = decodeURIComponent(url.pathname);
+      this.dataPath = path.join(this.rootPath, "data");
+      if (fs.existsSync(this.dataPath)) {
+        this.initialized = true;
+        return true;
+      }
+    } catch {
+    }
+    this.initialized = false;
+    return false;
+  }
+  /**
+   * アセットスキャンとKSファイルスキャンを並行実行する
+   */
+  async scanAll() {
+    if (!this.initialized) return;
+    await Promise.all([this.scanAssets(), this.scanKsFiles()]);
+  }
+  /**
+   * 全アセットカテゴリのディレクトリを走査する
+   */
+  async scanAssets() {
+    const categories = [
+      "bgimage",
+      "fgimage",
+      "image",
+      "bgm",
+      "sound",
+      "video",
+      "scenario",
+      "others"
+    ];
+    for (const category of categories) {
+      this.scanAssetCategory(category);
+    }
+  }
+  /**
+   * 指定カテゴリのアセットディレクトリを走査しキャッシュに格納する
+   */
+  scanAssetCategory(category) {
+    const dirPath = path.join(this.dataPath, category);
+    try {
+      if (!fs.existsSync(dirPath)) {
+        this.assetCache.set(category, { files: [], timestamp: Date.now() });
+        return;
+      }
+      const files = this.readDirRecursive(dirPath, dirPath);
+      this.assetCache.set(category, { files, timestamp: Date.now() });
+    } catch {
+      this.assetCache.set(category, { files: [], timestamp: Date.now() });
+    }
+  }
+  /**
+   * ディレクトリを再帰的に走査しファイルの相対パスリストを返す
+   */
+  readDirRecursive(dirPath, basePath) {
+    const results = [];
+    try {
+      const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dirPath, entry.name);
+        if (entry.isDirectory()) {
+          results.push(...this.readDirRecursive(fullPath, basePath));
+        } else {
+          results.push(path.relative(basePath, fullPath));
+        }
+      }
+    } catch {
+    }
+    return results;
+  }
+  /**
+   * data/scenario/ 配下の .ks ファイルを全件読み込み、ラベルとマクロを抽出する
+   */
+  async scanKsFiles() {
+    const scenarioPath = path.join(this.dataPath, "scenario");
+    if (!fs.existsSync(scenarioPath)) return;
+    const ksFiles = this.findKsFiles(scenarioPath);
+    this.ksFileIndices.clear();
+    for (const filePath of ksFiles) {
+      try {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const relativePath = path.relative(this.dataPath, filePath);
+        this.indexKsContent(relativePath, content);
+      } catch {
+      }
+    }
+  }
+  /**
+   * 指定ディレクトリ配下の .ks ファイルを再帰的に検索する
+   */
+  findKsFiles(dirPath) {
+    const results = [];
+    try {
+      const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(dirPath, entry.name);
+        if (entry.isDirectory()) {
+          results.push(...this.findKsFiles(fullPath));
+        } else if (entry.name.endsWith(".ks")) {
+          results.push(fullPath);
+        }
+      }
+    } catch {
+    }
+    return results;
+  }
+  /**
+   * KSファイルの内容からラベルとマクロを正規表現で抽出しインデックスに格納する
+   */
+  indexKsContent(relativePath, content) {
+    const labels = [];
+    const macros = [];
+    const lines = content.split("\n");
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const labelMatch = line.match(/^\*(\w+)/);
+      if (labelMatch) {
+        labels.push({
+          name: labelMatch[1],
+          file: relativePath,
+          line: i
+        });
+      }
+      const macroMatch = line.match(/\[macro\s+name\s*=\s*"(\w+)"\s*\]/i);
+      if (macroMatch) {
+        macros.push({
+          name: macroMatch[1],
+          file: relativePath,
+          line: i
+        });
+      }
+    }
+    this.ksFileIndices.set(relativePath, { labels, macros });
+  }
+  /**
+   * 単一ファイルのインクリメンタル更新（編集中ファイルのインデックスを差し替え）
+   */
+  updateFile(uri, content) {
+    if (!this.initialized) return;
+    try {
+      const url = new URL(uri);
+      const filePath = decodeURIComponent(url.pathname);
+      const relativePath = path.relative(this.dataPath, filePath);
+      if (relativePath.startsWith("scenario") && filePath.endsWith(".ks")) {
+        this.indexKsContent(relativePath, content);
+      }
+    } catch {
+    }
+  }
+  /**
+   * 指定カテゴリのアセットファイル一覧を返す
+   * キャッシュTTL超過時は自動再スキャンする
+   */
+  getAssetsForCategory(category) {
+    if (!this.initialized) return [];
+    const cached = this.assetCache.get(category);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return cached.files;
+    }
+    this.scanAssetCategory(category);
+    return this.assetCache.get(category)?.files ?? [];
+  }
+  /**
+   * 全ラベル定義を返す
+   */
+  getLabels() {
+    const labels = [];
+    for (const index of this.ksFileIndices.values()) {
+      labels.push(...index.labels);
+    }
+    return labels;
+  }
+  /**
+   * 全マクロ定義を返す
+   */
+  getMacros() {
+    const macros = [];
+    for (const index of this.ksFileIndices.values()) {
+      macros.push(...index.macros);
+    }
+    return macros;
+  }
+  /**
+   * シナリオファイル一覧を返す（.ks拡張子）
+   */
+  getScenarioFiles() {
+    return this.getAssetsForCategory("scenario");
+  }
+  /**
+   * 初期化済みかどうかを返す
+   */
+  isInitialized() {
+    return this.initialized;
+  }
+};
+
 // src/server.ts
 var connection = (0, import_node.createConnection)(import_node.ProposedFeatures.all);
 var documents = new import_node.TextDocuments(TextDocument);
-connection.onInitialize((_params) => {
+var scanner = new WorkspaceScanner();
+connection.onInitialize((params) => {
+  const rootUri = params.rootUri ?? params.workspaceFolders?.[0]?.uri;
+  if (rootUri && scanner.initialize(rootUri)) {
+    scanner.scanAll().catch(() => {
+    });
+  }
   return {
     capabilities: {
       textDocumentSync: import_node.TextDocumentSyncKind.Incremental,
       completionProvider: {
-        // "[" と "@" で補完をトリガー
-        triggerCharacters: ["[", "@", " "],
+        // "[", "@", スペース, '"' で補完をトリガー
+        triggerCharacters: ["[", "@", " ", '"'],
         resolveProvider: false
       },
       hoverProvider: true
@@ -12111,6 +12361,18 @@ function isTagNameTrigger(lineText, character) {
     return "at";
   }
   return null;
+}
+function getParamValueContext(lineText, character) {
+  const tagCtx = getTagContext(lineText, character);
+  if (!tagCtx) return null;
+  const textUpToCursor = lineText.substring(0, character);
+  const valueMatch = textUpToCursor.match(/(\w+)\s*=\s*"([^"]*)$/);
+  if (!valueMatch) return null;
+  return {
+    tagName: tagCtx.tagName,
+    paramName: valueMatch[1],
+    currentValue: valueMatch[2]
+  };
 }
 function createTagCompletions(trigger) {
   return TAG_NAMES.map((name, index) => {
@@ -12189,6 +12451,53 @@ function createTagDocumentation(tag) {
   }
   return doc;
 }
+function createMacroCompletions(trigger) {
+  const macros = scanner.getMacros();
+  return macros.map((macro, index) => {
+    const insertText = trigger === "bracket" ? `${macro.name}]` : macro.name;
+    return {
+      label: macro.name,
+      kind: import_node.CompletionItemKind.Function,
+      detail: `\u30DE\u30AF\u30ED (${macro.file})`,
+      documentation: {
+        kind: import_node.MarkupKind.Markdown,
+        value: `**[${macro.name}]** \u2014 \u30E6\u30FC\u30B6\u30FC\u5B9A\u7FA9\u30DE\u30AF\u30ED
+
+\u5B9A\u7FA9\u5143: \`${macro.file}\` (\u884C ${macro.line + 1})`
+      },
+      insertText,
+      insertTextFormat: import_node.InsertTextFormat.PlainText,
+      // タグ補完の後に表示（5000番台）
+      sortText: String(5e3 + index).padStart(6, "0")
+    };
+  });
+}
+function createStorageCompletions(tagName) {
+  const category = TAG_STORAGE_MAPPING.get(tagName);
+  if (!category) return [];
+  const files = scanner.getAssetsForCategory(category);
+  return files.map((file, index) => ({
+    label: file,
+    kind: import_node.CompletionItemKind.File,
+    detail: `${category}/`,
+    sortText: String(index).padStart(4, "0")
+  }));
+}
+function createTargetCompletions() {
+  const labels = scanner.getLabels();
+  return labels.map((label, index) => ({
+    label: `*${label.name}`,
+    kind: import_node.CompletionItemKind.Reference,
+    detail: label.file,
+    documentation: {
+      kind: import_node.MarkupKind.Markdown,
+      value: `\u30E9\u30D9\u30EB ***${label.name}**
+
+\u5B9A\u7FA9\u5143: \`${label.file}\` (\u884C ${label.line + 1})`
+    },
+    sortText: String(index).padStart(4, "0")
+  }));
+}
 connection.onCompletion(
   (params) => {
     const document = documents.get(params.textDocument.uri);
@@ -12199,7 +12508,19 @@ connection.onCompletion(
     });
     const trigger = isTagNameTrigger(line, params.position.character);
     if (trigger) {
-      return createTagCompletions(trigger);
+      const tagItems = createTagCompletions(trigger);
+      const macroItems = createMacroCompletions(trigger);
+      return [...tagItems, ...macroItems];
+    }
+    const valueCtx = getParamValueContext(line, params.position.character);
+    if (valueCtx) {
+      if (valueCtx.paramName === "storage") {
+        return createStorageCompletions(valueCtx.tagName);
+      }
+      if (valueCtx.paramName === "target") {
+        return createTargetCompletions();
+      }
+      return [];
     }
     const context = getTagContext(line, params.position.character);
     if (context && context.isInParams) {
@@ -12333,5 +12654,19 @@ ${param.description}`
   }
   return null;
 }
+var updateTimers = /* @__PURE__ */ new Map();
+documents.onDidChangeContent((change) => {
+  const uri = change.document.uri;
+  if (!uri.endsWith(".ks")) return;
+  const existing = updateTimers.get(uri);
+  if (existing) clearTimeout(existing);
+  updateTimers.set(
+    uri,
+    setTimeout(() => {
+      scanner.updateFile(uri, change.document.getText());
+      updateTimers.delete(uri);
+    }, 500)
+  );
+});
 documents.listen(connection);
 connection.listen();

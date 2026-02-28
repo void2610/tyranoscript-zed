@@ -14,6 +14,8 @@ export interface MacroDefinition {
   name: string;
   file: string;
   line: number;
+  /** [macro] 直前のコメント行から抽出した説明文 */
+  description: string;
 }
 
 /** アセットカテゴリ */
@@ -239,10 +241,21 @@ export class WorkspaceScanner {
       // マクロ検出: [macro name="xxx"]
       const macroMatch = line.match(/\[macro\s+name\s*=\s*"(\w+)"\s*\]/i);
       if (macroMatch) {
+        // 直前の連続するコメント行を説明文として収集
+        const commentLines: string[] = [];
+        for (let j = i - 1; j >= 0; j--) {
+          const commentMatch = lines[j].match(/^;\s?(.*)/);
+          if (commentMatch) {
+            commentLines.unshift(commentMatch[1]);
+          } else {
+            break;
+          }
+        }
         macros.push({
           name: macroMatch[1],
           file: relativePath,
           line: i,
+          description: commentLines.join("\n"),
         });
       }
     }

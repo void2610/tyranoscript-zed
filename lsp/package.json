@@ -1,6 +1,6 @@
 {
   "name": "@void2610/tyranoscript-lsp",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "TyranoScript Language Server for Zed",
   "main": "dist/server.js",
   "files": [

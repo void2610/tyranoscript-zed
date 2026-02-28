@@ -256,10 +256,10 @@ function createMacroCompletions(trigger: "bracket" | "at"): CompletionItem[] {
     return {
       label: macro.name,
       kind: CompletionItemKind.Function,
-      detail: `マクロ (${macro.file})`,
+      detail: macro.description ? macro.description.split("\n")[0] : `マクロ (${macro.file})`,
       documentation: {
         kind: MarkupKind.Markdown,
-        value: `**[${macro.name}]** — ユーザー定義マクロ\n\n定義元: \`${macro.file}\` (行 ${macro.line + 1})`,
+        value: `**[${macro.name}]** — ユーザー定義マクロ\n\n${macro.description ? macro.description + "\n\n" : ""}定義元: \`${macro.file}\` (行 ${macro.line + 1})`,
       },
       insertText,
       insertTextFormat: InsertTextFormat.PlainText,

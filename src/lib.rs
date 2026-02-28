@@ -1,35 +1,86 @@
 use std::{env, fs};
 use zed_extension_api::{self as zed, Result};
 
-/// ビルド済みLSPサーバーをバイナリに埋め込む
-const SERVER_JS: &[u8] = include_bytes!("../lsp/dist/server.js");
+/// npmパッケージ内のLSPサーバースクリプトのパス
+const SERVER_PATH: &str = "node_modules/@void2610/tyranoscript-lsp/dist/server.js";
+/// npmパッケージ名
+const PACKAGE_NAME: &str = "@void2610/tyranoscript-lsp";
 
-struct TyranoScriptExtension;
+struct TyranoScriptExtension {
+    did_find_server: bool,
+}
+
+impl TyranoScriptExtension {
+    /// サーバースクリプトが存在するか確認
+    fn server_exists(&self) -> bool {
+        fs::metadata(SERVER_PATH).is_ok_and(|stat| stat.is_file())
+    }
+
+    /// サーバースクリプトのパスを取得し、必要に応じてnpmからインストール
+    fn server_script_path(&mut self, language_server_id: &zed::LanguageServerId) -> Result<String> {
+        let server_exists = self.server_exists();
+        if self.did_find_server && server_exists {
+            return Ok(SERVER_PATH.to_string());
+        }
+
+        zed::set_language_server_installation_status(
+            language_server_id,
+            &zed::LanguageServerInstallationStatus::CheckingForUpdate,
+        );
+        let version = zed::npm_package_latest_version(PACKAGE_NAME)?;
+
+        if !server_exists
+            || zed::npm_package_installed_version(PACKAGE_NAME)?.as_ref() != Some(&version)
+        {
+            zed::set_language_server_installation_status(
+                language_server_id,
+                &zed::LanguageServerInstallationStatus::Downloading,
+            );
+            let result = zed::npm_install_package(PACKAGE_NAME, &version);
+            match result {
+                Ok(()) => {
+                    if !self.server_exists() {
+                        Err(format!(
+                            "installed package '{PACKAGE_NAME}' did not contain expected path '{SERVER_PATH}'",
+                        ))?;
+                    }
+                }
+                Err(error) => {
+                    if !self.server_exists() {
+                        Err(error)?;
+                    }
+                }
+            }
+        }
+
+        self.did_find_server = true;
+        Ok(SERVER_PATH.to_string())
+    }
+}
 
 impl zed::Extension for TyranoScriptExtension {
     fn new() -> Self {
-        Self
+        Self {
+            did_find_server: false,
+        }
     }
 
     fn language_server_command(
         &mut self,
-        _language_server_id: &zed::LanguageServerId,
+        language_server_id: &zed::LanguageServerId,
         _worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
-        // ワーキングディレクトリにサーバースクリプトを書き出す
-        let server_file = "server.js";
-        fs::write(server_file, SERVER_JS)
-            .map_err(|e| format!("LSPサーバーの書き出しに失敗: {e}"))?;
-
-        let server_path = env::current_dir()
-            .unwrap()
-            .join(server_file)
-            .to_string_lossy()
-            .to_string();
-
+        let server_path = self.server_script_path(language_server_id)?;
         Ok(zed::Command {
             command: zed::node_binary_path()?,
-            args: vec![server_path, "--stdio".to_string()],
+            args: vec![
+                env::current_dir()
+                    .unwrap()
+                    .join(&server_path)
+                    .to_string_lossy()
+                    .to_string(),
+                "--stdio".to_string(),
+            ],
             env: Default::default(),
         })
     }

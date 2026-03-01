@@ -46,7 +46,7 @@ export const TAG_STORAGE_MAPPING: Map<string, AssetCategory> = new Map([
   ["chara_mod", "fgimage"],
   ["chara_show", "fgimage"],
   ["chara_layer", "fgimage"],
-  ["image", "image"],
+  ["image", "fgimage"], // [image]タグはdata/fgimage/を参照する
   ["cursor", "image"],
   ["graph", "image"],
   ["mask", "image"],
@@ -294,6 +294,59 @@ export class WorkspaceScanner {
   }
 
   /**
+   * 指定ファイルに動的ターゲット参照（target=&var / target=%var）が含まれるか判定する
+   * 含まれる場合、そのファイルのラベルは動的に参照される可能性があるため未使用警告をスキップする
+   */
+  hasDynamicTargetReference(fileUri: string): boolean {
+    if (!this.initialized) return false;
+    try {
+      const url = new URL(fileUri);
+      const filePath = decodeURIComponent(url.pathname);
+      const content = fs.readFileSync(filePath, "utf-8");
+      return content.split("\n").some((line) => {
+        if (line.trimStart().startsWith(";")) return false;
+        return /target\s*=\s*[&%]/.test(line);
+      });
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * ワークスペース内の全 .ks ファイルを {uri, content} のリストで返す
+   * スキャン未完了時は空配列を返す
+   */
+  getAllKsFiles(): Array<{ uri: string; content: string }> {
+    if (!this.initialized) return [];
+    const scenarioPath = path.join(this.dataPath, "scenario");
+    if (!fs.existsSync(scenarioPath)) return [];
+
+    const results: Array<{ uri: string; content: string }> = [];
+    const ksFiles = this.findKsFiles(scenarioPath);
+    for (const filePath of ksFiles) {
+      try {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const relativePath = path.relative(this.dataPath, filePath);
+        results.push({ uri: this.resolveFilePath(relativePath), content });
+      } catch {
+        // 読み取りエラーは無視
+      }
+    }
+    return results;
+  }
+
+  /**
+   * カテゴリディレクトリを基準にしたファイルパスを解決し、実在するか確認する
+   * キャッシュ外のパス（../を含む相対パスなど）に対して直接 fs.existsSync で確認する
+   */
+  assetFileExists(category: AssetCategory, value: string): boolean {
+    if (!this.initialized) return true; // スキャン未完了時は誤警告を避ける
+    const categoryDir = path.join(this.dataPath, category);
+    const resolved = path.resolve(categoryDir, value);
+    return fs.existsSync(resolved);
+  }
+
+  /**
    * 指定カテゴリのアセットファイル一覧を返す
    * キャッシュTTL超過時は自動再スキャンする
    */
@@ -347,7 +400,12 @@ export class WorkspaceScanner {
   }
 
   /**
-   * 全 .ks ファイルから target="*labelName" の参照箇所を検索する
+   * 全 .ks ファイルからラベル参照箇所を検索する
+   * 以下の記法をすべてカバーする:
+   *   target="*labelName"  ← クォートあり・アスタリスクあり
+   *   target=*labelName    ← クォートなし・アスタリスクあり
+   *   target="labelName"   ← クォートあり・アスタリスクなし
+   *   target=labelName     ← クォートなし・アスタリスクなし
    */
   findLabelReferences(labelName: string): FileReference[] {
     if (!this.initialized) return [];
@@ -357,9 +415,10 @@ export class WorkspaceScanner {
     if (!fs.existsSync(scenarioPath)) return results;
 
     const ksFiles = this.findKsFiles(scenarioPath);
-    // target="*labelName" にマッチする正規表現
+    const escaped = this.escapeRegExp(labelName);
+    // target= の後、クォート有無・アスタリスク有無を問わずラベル名にマッチ
     const regex = new RegExp(
-      `target\\s*=\\s*"\\*${this.escapeRegExp(labelName)}"`,
+      `target\\s*=\\s*["']?\\*?(${escaped})(?=["'\\s\\]\\r\\n]|$)`,
       "g"
     );
 
@@ -373,13 +432,16 @@ export class WorkspaceScanner {
           let match;
           regex.lastIndex = 0;
           while ((match = regex.exec(lines[i])) !== null) {
-            // "*labelName" 部分の位置を算出（"*" を含む）
-            const valueStart = lines[i].indexOf(`*${labelName}`, match.index);
+            // キャプチャグループ1がラベル名の開始位置
+            const nameStart = match.index + match[0].length - match[1].length;
+            // *が直前にあればアスタリスクも含めた範囲を返す
+            const hasStar = lines[i][nameStart - 1] === "*";
+            const startChar = hasStar ? nameStart - 1 : nameStart;
             results.push({
               file: relativePath,
               line: i,
-              startChar: valueStart,
-              endChar: valueStart + labelName.length + 1, // +1 は "*" の分
+              startChar,
+              endChar: startChar + labelName.length + (hasStar ? 1 : 0),
             });
           }
         }

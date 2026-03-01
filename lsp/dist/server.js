@@ -1071,8 +1071,8 @@ var require_semaphore = __commonJS({
         this._waiting = [];
       }
       lock(thunk) {
-        return new Promise((resolve, reject) => {
-          this._waiting.push({ thunk, resolve, reject });
+        return new Promise((resolve2, reject) => {
+          this._waiting.push({ thunk, resolve: resolve2, reject });
           this.runNext();
         });
       }
@@ -2562,9 +2562,9 @@ ${JSON.stringify(message, null, 4)}`);
           if (typeof cancellationStrategy.sender.enableCancellation === "function") {
             cancellationStrategy.sender.enableCancellation(requestMessage);
           }
-          return new Promise(async (resolve, reject) => {
+          return new Promise(async (resolve2, reject) => {
             const resolveWithCleanup = (r) => {
-              resolve(r);
+              resolve2(r);
               cancellationStrategy.sender.cleanup(id);
               disposable?.dispose();
             };
@@ -2975,10 +2975,10 @@ var require_ril = __commonJS({
         return api_1.Disposable.create(() => this.stream.off("end", listener));
       }
       write(data, encoding) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve2, reject) => {
           const callback = (error) => {
             if (error === void 0 || error === null) {
-              resolve();
+              resolve2();
             } else {
               reject(error);
             }
@@ -3230,10 +3230,10 @@ var require_main = __commonJS({
     exports2.generateRandomPipeName = generateRandomPipeName;
     function createClientPipeTransport(pipeName, encoding = "utf-8") {
       let connectResolve;
-      const connected = new Promise((resolve, _reject) => {
-        connectResolve = resolve;
+      const connected = new Promise((resolve2, _reject) => {
+        connectResolve = resolve2;
       });
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve2, reject) => {
         let server = (0, net_1.createServer)((socket) => {
           server.close();
           connectResolve([
@@ -3244,7 +3244,7 @@ var require_main = __commonJS({
         server.on("error", reject);
         server.listen(pipeName, () => {
           server.removeListener("error", reject);
-          resolve({
+          resolve2({
             onConnected: () => {
               return connected;
             }
@@ -3263,10 +3263,10 @@ var require_main = __commonJS({
     exports2.createServerPipeTransport = createServerPipeTransport;
     function createClientSocketTransport(port, encoding = "utf-8") {
       let connectResolve;
-      const connected = new Promise((resolve, _reject) => {
-        connectResolve = resolve;
+      const connected = new Promise((resolve2, _reject) => {
+        connectResolve = resolve2;
       });
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve2, reject) => {
         const server = (0, net_1.createServer)((socket) => {
           server.close();
           connectResolve([
@@ -3277,7 +3277,7 @@ var require_main = __commonJS({
         server.on("error", reject);
         server.listen(port, "127.0.0.1", () => {
           server.removeListener("error", reject);
-          resolve({
+          resolve2({
             onConnected: () => {
               return connected;
             }
@@ -3528,13 +3528,13 @@ var require_main2 = __commonJS({
         }
         DiagnosticRelatedInformation2.is = is;
       })(DiagnosticRelatedInformation || (exports3.DiagnosticRelatedInformation = DiagnosticRelatedInformation = {}));
-      var DiagnosticSeverity;
-      (function(DiagnosticSeverity2) {
-        DiagnosticSeverity2.Error = 1;
-        DiagnosticSeverity2.Warning = 2;
-        DiagnosticSeverity2.Information = 3;
-        DiagnosticSeverity2.Hint = 4;
-      })(DiagnosticSeverity || (exports3.DiagnosticSeverity = DiagnosticSeverity = {}));
+      var DiagnosticSeverity2;
+      (function(DiagnosticSeverity3) {
+        DiagnosticSeverity3.Error = 1;
+        DiagnosticSeverity3.Warning = 2;
+        DiagnosticSeverity3.Information = 3;
+        DiagnosticSeverity3.Hint = 4;
+      })(DiagnosticSeverity2 || (exports3.DiagnosticSeverity = DiagnosticSeverity2 = {}));
       var DiagnosticTag;
       (function(DiagnosticTag2) {
         DiagnosticTag2.Unnecessary = 1;
@@ -3548,8 +3548,8 @@ var require_main2 = __commonJS({
         }
         CodeDescription2.is = is;
       })(CodeDescription || (exports3.CodeDescription = CodeDescription = {}));
-      var Diagnostic;
-      (function(Diagnostic2) {
+      var Diagnostic2;
+      (function(Diagnostic3) {
         function create(range, message, severity, code, source, relatedInformation) {
           var result = { range, message };
           if (Is.defined(severity)) {
@@ -3566,14 +3566,14 @@ var require_main2 = __commonJS({
           }
           return result;
         }
-        Diagnostic2.create = create;
+        Diagnostic3.create = create;
         function is(value) {
           var _a;
           var candidate = value;
           return Is.defined(candidate) && Range2.is(candidate.range) && Is.string(candidate.message) && (Is.number(candidate.severity) || Is.undefined(candidate.severity)) && (Is.integer(candidate.code) || Is.string(candidate.code) || Is.undefined(candidate.code)) && (Is.undefined(candidate.codeDescription) || Is.string((_a = candidate.codeDescription) === null || _a === void 0 ? void 0 : _a.href)) && (Is.string(candidate.source) || Is.undefined(candidate.source)) && (Is.undefined(candidate.relatedInformation) || Is.typedArray(candidate.relatedInformation, DiagnosticRelatedInformation.is));
         }
-        Diagnostic2.is = is;
-      })(Diagnostic || (exports3.Diagnostic = Diagnostic = {}));
+        Diagnostic3.is = is;
+      })(Diagnostic2 || (exports3.Diagnostic = Diagnostic2 = {}));
       var Command;
       (function(Command2) {
         function create(title, command) {
@@ -4358,7 +4358,7 @@ var require_main2 = __commonJS({
         CodeActionContext2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.defined(candidate) && Is.typedArray(candidate.diagnostics, Diagnostic.is) && (candidate.only === void 0 || Is.typedArray(candidate.only, Is.string)) && (candidate.triggerKind === void 0 || candidate.triggerKind === CodeActionTriggerKind.Invoked || candidate.triggerKind === CodeActionTriggerKind.Automatic);
+          return Is.defined(candidate) && Is.typedArray(candidate.diagnostics, Diagnostic2.is) && (candidate.only === void 0 || Is.typedArray(candidate.only, Is.string)) && (candidate.triggerKind === void 0 || candidate.triggerKind === CodeActionTriggerKind.Invoked || candidate.triggerKind === CodeActionTriggerKind.Automatic);
         }
         CodeActionContext2.is = is;
       })(CodeActionContext || (exports3.CodeActionContext = CodeActionContext = {}));
@@ -4383,7 +4383,7 @@ var require_main2 = __commonJS({
         CodeAction2.create = create;
         function is(value) {
           var candidate = value;
-          return candidate && Is.string(candidate.title) && (candidate.diagnostics === void 0 || Is.typedArray(candidate.diagnostics, Diagnostic.is)) && (candidate.kind === void 0 || Is.string(candidate.kind)) && (candidate.edit !== void 0 || candidate.command !== void 0) && (candidate.command === void 0 || Command.is(candidate.command)) && (candidate.isPreferred === void 0 || Is.boolean(candidate.isPreferred)) && (candidate.edit === void 0 || WorkspaceEdit.is(candidate.edit));
+          return candidate && Is.string(candidate.title) && (candidate.diagnostics === void 0 || Is.typedArray(candidate.diagnostics, Diagnostic2.is)) && (candidate.kind === void 0 || Is.string(candidate.kind)) && (candidate.edit !== void 0 || candidate.command !== void 0) && (candidate.command === void 0 || Command.is(candidate.command)) && (candidate.isPreferred === void 0 || Is.boolean(candidate.isPreferred)) && (candidate.edit === void 0 || WorkspaceEdit.is(candidate.edit));
         }
         CodeAction2.is = is;
       })(CodeAction || (exports3.CodeAction = CodeAction = {}));
@@ -8063,8 +8063,8 @@ var require_server = __commonJS({
         if (value instanceof Promise) {
           return value;
         } else if (Is.thenable(value)) {
-          return new Promise((resolve, reject) => {
-            value.then((resolved) => resolve(resolved), (error) => reject(error));
+          return new Promise((resolve2, reject) => {
+            value.then((resolved) => resolve2(resolved), (error) => reject(error));
           });
         } else {
           return Promise.resolve(value);
@@ -8334,7 +8334,7 @@ var require_files = __commonJS({
     function isWindows() {
       return process.platform === "win32";
     }
-    function resolve(moduleName, nodePath, cwd, tracer) {
+    function resolve2(moduleName, nodePath, cwd, tracer) {
       const nodePathKey = "NODE_PATH";
       const app = [
         "var p = process;",
@@ -8353,7 +8353,7 @@ var require_files = __commonJS({
         "}",
         "});"
       ].join("");
-      return new Promise((resolve2, reject) => {
+      return new Promise((resolve3, reject) => {
         let env = process.env;
         let newEnv = /* @__PURE__ */ Object.create(null);
         Object.keys(env).forEach((key) => newEnv[key] = env[key]);
@@ -8385,7 +8385,7 @@ var require_files = __commonJS({
             if (message2.c === "r") {
               cp.send({ c: "e" });
               if (message2.s) {
-                resolve2(message2.r);
+                resolve3(message2.r);
               } else {
                 reject(new Error(`Failed to resolve module: ${moduleName}`));
               }
@@ -8401,7 +8401,7 @@ var require_files = __commonJS({
         }
       });
     }
-    exports2.resolve = resolve;
+    exports2.resolve = resolve2;
     function resolveGlobalNodePath(tracer) {
       let npmCommand = "npm";
       const env = /* @__PURE__ */ Object.create(null);
@@ -8516,17 +8516,17 @@ var require_files = __commonJS({
         if (!path2.isAbsolute(nodePath)) {
           nodePath = path2.join(workspaceRoot, nodePath);
         }
-        return resolve(moduleName, nodePath, nodePath, tracer).then((value) => {
+        return resolve2(moduleName, nodePath, nodePath, tracer).then((value) => {
           if (FileSystem.isParent(nodePath, value)) {
             return value;
           } else {
             return Promise.reject(new Error(`Failed to load ${moduleName} from node path location.`));
           }
         }).then(void 0, (_error) => {
-          return resolve(moduleName, resolveGlobalNodePath(tracer), workspaceRoot, tracer);
+          return resolve2(moduleName, resolveGlobalNodePath(tracer), workspaceRoot, tracer);
         });
       } else {
-        return resolve(moduleName, resolveGlobalNodePath(tracer), workspaceRoot, tracer);
+        return resolve2(moduleName, resolveGlobalNodePath(tracer), workspaceRoot, tracer);
       }
     }
     exports2.resolveModulePath = resolveModulePath;
@@ -12068,7 +12068,8 @@ var TAG_STORAGE_MAPPING = /* @__PURE__ */ new Map([
   ["chara_mod", "fgimage"],
   ["chara_show", "fgimage"],
   ["chara_layer", "fgimage"],
-  ["image", "image"],
+  ["image", "fgimage"],
+  // [image]タグはdata/fgimage/を参照する
   ["cursor", "image"],
   ["graph", "image"],
   ["mask", "image"],
@@ -12265,6 +12266,54 @@ var WorkspaceScanner = class {
     }
   }
   /**
+   * 指定ファイルに動的ターゲット参照（target=&var / target=%var）が含まれるか判定する
+   * 含まれる場合、そのファイルのラベルは動的に参照される可能性があるため未使用警告をスキップする
+   */
+  hasDynamicTargetReference(fileUri) {
+    if (!this.initialized) return false;
+    try {
+      const url = new URL(fileUri);
+      const filePath = decodeURIComponent(url.pathname);
+      const content = fs.readFileSync(filePath, "utf-8");
+      return content.split("\n").some((line) => {
+        if (line.trimStart().startsWith(";")) return false;
+        return /target\s*=\s*[&%]/.test(line);
+      });
+    } catch {
+      return false;
+    }
+  }
+  /**
+   * ワークスペース内の全 .ks ファイルを {uri, content} のリストで返す
+   * スキャン未完了時は空配列を返す
+   */
+  getAllKsFiles() {
+    if (!this.initialized) return [];
+    const scenarioPath = path.join(this.dataPath, "scenario");
+    if (!fs.existsSync(scenarioPath)) return [];
+    const results = [];
+    const ksFiles = this.findKsFiles(scenarioPath);
+    for (const filePath of ksFiles) {
+      try {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const relativePath = path.relative(this.dataPath, filePath);
+        results.push({ uri: this.resolveFilePath(relativePath), content });
+      } catch {
+      }
+    }
+    return results;
+  }
+  /**
+   * カテゴリディレクトリを基準にしたファイルパスを解決し、実在するか確認する
+   * キャッシュ外のパス（../を含む相対パスなど）に対して直接 fs.existsSync で確認する
+   */
+  assetFileExists(category, value) {
+    if (!this.initialized) return true;
+    const categoryDir = path.join(this.dataPath, category);
+    const resolved = path.resolve(categoryDir, value);
+    return fs.existsSync(resolved);
+  }
+  /**
    * 指定カテゴリのアセットファイル一覧を返す
    * キャッシュTTL超過時は自動再スキャンする
    */
@@ -12310,7 +12359,12 @@ var WorkspaceScanner = class {
     return this.initialized;
   }
   /**
-   * 全 .ks ファイルから target="*labelName" の参照箇所を検索する
+   * 全 .ks ファイルからラベル参照箇所を検索する
+   * 以下の記法をすべてカバーする:
+   *   target="*labelName"  ← クォートあり・アスタリスクあり
+   *   target=*labelName    ← クォートなし・アスタリスクあり
+   *   target="labelName"   ← クォートあり・アスタリスクなし
+   *   target=labelName     ← クォートなし・アスタリスクなし
    */
   findLabelReferences(labelName) {
     if (!this.initialized) return [];
@@ -12318,8 +12372,9 @@ var WorkspaceScanner = class {
     const scenarioPath = path.join(this.dataPath, "scenario");
     if (!fs.existsSync(scenarioPath)) return results;
     const ksFiles = this.findKsFiles(scenarioPath);
+    const escaped = this.escapeRegExp(labelName);
     const regex = new RegExp(
-      `target\\s*=\\s*"\\*${this.escapeRegExp(labelName)}"`,
+      `target\\s*=\\s*["']?\\*?(${escaped})(?=["'\\s\\]\\r\\n]|$)`,
       "g"
     );
     for (const filePath of ksFiles) {
@@ -12331,13 +12386,14 @@ var WorkspaceScanner = class {
           let match;
           regex.lastIndex = 0;
           while ((match = regex.exec(lines[i])) !== null) {
-            const valueStart = lines[i].indexOf(`*${labelName}`, match.index);
+            const nameStart = match.index + match[0].length - match[1].length;
+            const hasStar = lines[i][nameStart - 1] === "*";
+            const startChar = hasStar ? nameStart - 1 : nameStart;
             results.push({
               file: relativePath,
               line: i,
-              startChar: valueStart,
-              endChar: valueStart + labelName.length + 1
-              // +1 は "*" の分
+              startChar,
+              endChar: startChar + labelName.length + (hasStar ? 1 : 0)
             });
           }
         }
@@ -12419,13 +12475,19 @@ var WorkspaceScanner = class {
 };
 
 // src/server.ts
+var PARAM_FILE_MAPPING = [
+  ["graphic", "image"],
+  ["enterimg", "image"],
+  ["leaveimg", "image"],
+  ["clickimg", "image"]
+];
 var connection = (0, import_node.createConnection)(import_node.ProposedFeatures.all);
 var documents = new import_node.TextDocuments(TextDocument);
 var scanner = new WorkspaceScanner();
 connection.onInitialize((params) => {
   const rootUri = params.rootUri ?? params.workspaceFolders?.[0]?.uri;
   if (rootUri && scanner.initialize(rootUri)) {
-    scanner.scanAll().catch(() => {
+    scanner.scanAll().then(() => validateAllKsFiles()).catch(() => {
     });
   }
   return {
@@ -12925,6 +12987,247 @@ ${param.description}`
   }
   return null;
 }
+function parseParams(text) {
+  const map = /* @__PURE__ */ new Map();
+  const regex = /(\w+)\s*=\s*"([^"]*)"|(\w+)\s*=\s*([^\s\]]+)/g;
+  let m;
+  while ((m = regex.exec(text)) !== null) {
+    if (m[1]) map.set(m[1], m[2]);
+    else if (m[3]) map.set(m[3], m[4]);
+  }
+  return map;
+}
+function parseLine(lineText) {
+  const trimmed = lineText.trimStart();
+  if (trimmed.startsWith(";")) return null;
+  const bracketMatch = lineText.match(/\[([a-zA-Z_]\w*)([^\]]*)\]?/);
+  if (bracketMatch) {
+    const tagName = bracketMatch[1];
+    const tagStart = lineText.indexOf("[") + 1;
+    return {
+      tagName,
+      params: parseParams(bracketMatch[2] ?? ""),
+      tagStart,
+      tagEnd: tagStart + tagName.length
+    };
+  }
+  const atMatch = lineText.match(/^@(\w+)(.*)/);
+  if (atMatch) {
+    const tagName = atMatch[1];
+    return {
+      tagName,
+      params: parseParams(atMatch[2] ?? ""),
+      tagStart: 1,
+      tagEnd: 1 + tagName.length
+    };
+  }
+  return null;
+}
+function getParamValueRangeInLine(lineText, lineIndex, paramName, value) {
+  const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const quotedPattern = new RegExp(`${paramName}\\s*=\\s*"(${escaped})"`);
+  const qm = lineText.match(quotedPattern);
+  if (qm && qm.index !== void 0) {
+    const quotePos = lineText.indexOf('"', qm.index + paramName.length);
+    const start = quotePos + 1;
+    return import_node.Range.create(
+      import_node.Position.create(lineIndex, start),
+      import_node.Position.create(lineIndex, start + value.length)
+    );
+  }
+  const unquotedPattern = new RegExp(`${paramName}\\s*=\\s*(${escaped})`);
+  const um = lineText.match(unquotedPattern);
+  if (um && um.index !== void 0) {
+    const start = um.index + um[0].length - um[1].length;
+    return import_node.Range.create(
+      import_node.Position.create(lineIndex, start),
+      import_node.Position.create(lineIndex, start + value.length)
+    );
+  }
+  return import_node.Range.create(
+    import_node.Position.create(lineIndex, 0),
+    import_node.Position.create(lineIndex, lineText.length)
+  );
+}
+function validateDocument(document) {
+  if (!scanner.isInitialized()) return [];
+  const diagnostics = [];
+  const lines = document.getText().split("\n");
+  const knownLabels = new Set(scanner.getLabels().map((l) => l.name));
+  const knownMacros = new Set(scanner.getMacros().map((m) => m.name));
+  let inMacroBlock = false;
+  let inScriptBlock = false;
+  const definedLabels = [];
+  for (let i = 0; i < lines.length; i++) {
+    const labelMatch = lines[i].match(/^\*(\w+)/);
+    if (labelMatch) {
+      definedLabels.push({ name: labelMatch[1], line: i });
+    }
+    const parsed = parseLine(lines[i]);
+    if (!parsed) continue;
+    const { tagName, params, tagStart, tagEnd } = parsed;
+    if (tagName === "iscript") {
+      inScriptBlock = true;
+      continue;
+    }
+    if (tagName === "endscript") {
+      inScriptBlock = false;
+      continue;
+    }
+    if (inScriptBlock) continue;
+    if (tagName === "macro") {
+      inMacroBlock = true;
+      continue;
+    }
+    if (tagName === "endmacro") {
+      inMacroBlock = false;
+      continue;
+    }
+    if (inMacroBlock) continue;
+    if (!TAG_DATABASE.has(tagName) && !knownMacros.has(tagName)) {
+      diagnostics.push(import_node.Diagnostic.create(
+        import_node.Range.create(import_node.Position.create(i, tagStart), import_node.Position.create(i, tagEnd)),
+        `\u672A\u5B9A\u7FA9\u306E\u30BF\u30B0\u307E\u305F\u306F\u30DE\u30AF\u30ED: "${tagName}"`,
+        import_node.DiagnosticSeverity.Warning,
+        "tyrano-undefined-macro",
+        "tyranoscript"
+      ));
+      continue;
+    }
+    const tagDef = TAG_DATABASE.get(tagName);
+    if (!tagDef) continue;
+    for (const paramDef of tagDef.params) {
+      if (paramDef.required && !params.has(paramDef.name)) {
+        diagnostics.push(import_node.Diagnostic.create(
+          import_node.Range.create(import_node.Position.create(i, tagStart), import_node.Position.create(i, tagEnd)),
+          `[${tagName}] \u306E\u5FC5\u9808\u30D1\u30E9\u30E1\u30FC\u30BF "${paramDef.name}" \u304C\u6307\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093`,
+          import_node.DiagnosticSeverity.Error,
+          "tyrano-missing-param",
+          "tyranoscript"
+        ));
+      }
+    }
+    const storageValue = params.get("storage");
+    if (storageValue && !storageValue.startsWith("[") && !storageValue.startsWith("%") && !storageValue.startsWith("&")) {
+      const folderOverride = params.get("folder");
+      const category = folderOverride ?? TAG_STORAGE_MAPPING.get(tagName);
+      if (category) {
+        const exists = storageValue.includes("../") ? scanner.assetFileExists(category, storageValue) : scanner.getAssetsForCategory(category).includes(storageValue);
+        if (!exists) {
+          diagnostics.push(import_node.Diagnostic.create(
+            getParamValueRangeInLine(lines[i], i, "storage", storageValue),
+            `\u30D5\u30A1\u30A4\u30EB\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093: "${storageValue}" (${category}/)`,
+            import_node.DiagnosticSeverity.Warning,
+            "tyrano-missing-file",
+            "tyranoscript"
+          ));
+        }
+      }
+    }
+    if (TAG_DATABASE.has(tagName)) {
+      for (const [paramName, category] of PARAM_FILE_MAPPING) {
+        const paramValue = params.get(paramName);
+        if (!paramValue || paramValue.startsWith("[") || paramValue.startsWith("%") || paramValue.startsWith("&")) continue;
+        let fileExists;
+        if (paramValue.includes("../")) {
+          fileExists = scanner.assetFileExists(category, paramValue);
+        } else {
+          const available = scanner.getAssetsForCategory(category);
+          if (available.length === 0) continue;
+          fileExists = available.includes(paramValue);
+        }
+        if (!fileExists) {
+          diagnostics.push(import_node.Diagnostic.create(
+            getParamValueRangeInLine(lines[i], i, paramName, paramValue),
+            `\u30D5\u30A1\u30A4\u30EB\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093: "${paramValue}" (${category}/)`,
+            import_node.DiagnosticSeverity.Warning,
+            "tyrano-missing-file",
+            "tyranoscript"
+          ));
+        }
+      }
+    }
+    const targetValue = params.get("target");
+    if (targetValue && targetValue.startsWith("*")) {
+      const labelName = targetValue.substring(1);
+      if (labelName.length > 0 && !knownLabels.has(labelName)) {
+        diagnostics.push(import_node.Diagnostic.create(
+          getParamValueRangeInLine(lines[i], i, "target", targetValue),
+          `\u672A\u5B9A\u7FA9\u306E\u30E9\u30D9\u30EB: "${targetValue}" \u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093`,
+          import_node.DiagnosticSeverity.Warning,
+          "tyrano-undefined-label",
+          "tyranoscript"
+        ));
+      }
+    }
+  }
+  const ENTRY_LABELS = /* @__PURE__ */ new Set(["start"]);
+  for (const { name, line } of definedLabels) {
+    if (ENTRY_LABELS.has(name)) continue;
+    const refs = scanner.findLabelReferences(name);
+    if (refs.length === 0 && !scanner.hasDynamicTargetReference(document.uri)) {
+      diagnostics.push(import_node.Diagnostic.create(
+        import_node.Range.create(import_node.Position.create(line, 0), import_node.Position.create(line, name.length + 1)),
+        // +1 は "*" の分
+        `\u30E9\u30D9\u30EB "*${name}" \u306F\u3069\u3053\u304B\u3089\u3082\u53C2\u7167\u3055\u308C\u3066\u3044\u307E\u305B\u3093`,
+        import_node.DiagnosticSeverity.Warning,
+        "tyrano-unused-label",
+        "tyranoscript"
+      ));
+    }
+  }
+  return applySuppressionComments(diagnostics, lines);
+}
+function applySuppressionComments(diagnostics, lines) {
+  const disabledRanges = [];
+  const openDisables = /* @__PURE__ */ new Map();
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const disableM = line.match(/;\s*tyranoscript-disable(?!-next-line|-line)(?:\s+(\S+))?/);
+    const enableM = line.match(/;\s*tyranoscript-enable(?:\s+(\S+))?/);
+    if (disableM) {
+      const code = disableM[1];
+      if (!openDisables.has(code)) openDisables.set(code, i);
+    }
+    if (enableM) {
+      const code = enableM[1];
+      const start = openDisables.get(code);
+      if (start !== void 0) {
+        disabledRanges.push({ start, end: i, code });
+        openDisables.delete(code);
+      }
+    }
+  }
+  for (const [code, start] of openDisables) {
+    disabledRanges.push({ start, end: lines.length - 1, code });
+  }
+  return diagnostics.filter((diag) => {
+    const lineIdx = diag.range.start.line;
+    const diagCode = diag.code;
+    const matches = (suppressCode) => suppressCode === void 0 || suppressCode === diagCode;
+    if (lineIdx > 0) {
+      const m = lines[lineIdx - 1].match(/;\s*tyranoscript-disable-next-line(?:\s+(\S+))?/);
+      if (m && matches(m[1])) return false;
+    }
+    const m2 = lines[lineIdx]?.match(/;\s*tyranoscript-disable-line(?:\s+(\S+))?/);
+    if (m2 && matches(m2[1])) return false;
+    for (const range of disabledRanges) {
+      if (lineIdx >= range.start && lineIdx <= range.end && matches(range.code)) return false;
+    }
+    return true;
+  });
+}
+function validateAndPublish(uri, document) {
+  const diagnostics = validateDocument(document);
+  connection.sendDiagnostics({ uri, diagnostics });
+}
+function validateAllKsFiles() {
+  for (const { uri, content } of scanner.getAllKsFiles()) {
+    const openDoc = documents.get(uri);
+    const doc = openDoc ?? TextDocument.create(uri, "tyranoscript", 0, content);
+    validateAndPublish(uri, doc);
+  }
+}
 var updateTimers = /* @__PURE__ */ new Map();
 documents.onDidChangeContent((change) => {
   const uri = change.document.uri;
@@ -12935,9 +13238,18 @@ documents.onDidChangeContent((change) => {
     uri,
     setTimeout(() => {
       scanner.updateFile(uri, change.document.getText());
+      validateAndPublish(uri, change.document);
       updateTimers.delete(uri);
     }, 500)
   );
+});
+documents.onDidClose((event) => {
+  if (!event.document.uri.endsWith(".ks")) return;
+  const uri = event.document.uri;
+  const ksFile = scanner.getAllKsFiles().find((f) => f.uri === uri);
+  if (!ksFile) return;
+  const doc = TextDocument.create(uri, "tyranoscript", 0, ksFile.content);
+  connection.sendDiagnostics({ uri, diagnostics: validateDocument(doc) });
 });
 documents.listen(connection);
 connection.listen();

@@ -18,6 +18,14 @@ export interface MacroDefinition {
   description: string;
 }
 
+/** 参照検索結果 */
+export interface FileReference {
+  file: string; // data/ からの相対パス
+  line: number; // 0ベース行番号
+  startChar: number;
+  endChar: number;
+}
+
 /** アセットカテゴリ */
 export type AssetCategory =
   | "bgimage"
@@ -336,5 +344,136 @@ export class WorkspaceScanner {
    */
   isInitialized(): boolean {
     return this.initialized;
+  }
+
+  /**
+   * 全 .ks ファイルから target="*labelName" の参照箇所を検索する
+   */
+  findLabelReferences(labelName: string): FileReference[] {
+    if (!this.initialized) return [];
+
+    const results: FileReference[] = [];
+    const scenarioPath = path.join(this.dataPath, "scenario");
+    if (!fs.existsSync(scenarioPath)) return results;
+
+    const ksFiles = this.findKsFiles(scenarioPath);
+    // target="*labelName" にマッチする正規表現
+    const regex = new RegExp(
+      `target\\s*=\\s*"\\*${this.escapeRegExp(labelName)}"`,
+      "g"
+    );
+
+    for (const filePath of ksFiles) {
+      try {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const lines = content.split("\n");
+        const relativePath = path.relative(this.dataPath, filePath);
+
+        for (let i = 0; i < lines.length; i++) {
+          let match;
+          regex.lastIndex = 0;
+          while ((match = regex.exec(lines[i])) !== null) {
+            // "*labelName" 部分の位置を算出（"*" を含む）
+            const valueStart = lines[i].indexOf(`*${labelName}`, match.index);
+            results.push({
+              file: relativePath,
+              line: i,
+              startChar: valueStart,
+              endChar: valueStart + labelName.length + 1, // +1 は "*" の分
+            });
+          }
+        }
+      } catch {
+        // 読み取りエラーは無視
+      }
+    }
+    return results;
+  }
+
+  /**
+   * 全 .ks ファイルからマクロの使用箇所を検索する
+   * [macroName ...] または @macroName 形式にマッチし、定義行 [macro name="..."] は除外する
+   */
+  findMacroReferences(macroName: string): FileReference[] {
+    if (!this.initialized) return [];
+
+    const results: FileReference[] = [];
+    const scenarioPath = path.join(this.dataPath, "scenario");
+    if (!fs.existsSync(scenarioPath)) return results;
+
+    const ksFiles = this.findKsFiles(scenarioPath);
+    // [macroName で始まるパターン（タグ呼び出し）
+    const bracketRegex = new RegExp(
+      `\\[${this.escapeRegExp(macroName)}(?=[\\s\\]]|$)`,
+      "g"
+    );
+    // @macroName で始まるパターン（@記法）
+    const atRegex = new RegExp(
+      `^@${this.escapeRegExp(macroName)}(?=[\\s]|$)`,
+      "g"
+    );
+    // マクロ定義行のパターン（除外用）
+    const defRegex = new RegExp(
+      `\\[macro\\s+name\\s*=\\s*"${this.escapeRegExp(macroName)}"\\s*\\]`,
+      "i"
+    );
+
+    for (const filePath of ksFiles) {
+      try {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const lines = content.split("\n");
+        const relativePath = path.relative(this.dataPath, filePath);
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+
+          // 定義行は除外
+          if (defRegex.test(line)) continue;
+
+          // [macroName パターン
+          bracketRegex.lastIndex = 0;
+          let match;
+          while ((match = bracketRegex.exec(line)) !== null) {
+            const start = match.index + 1; // "[" の次
+            results.push({
+              file: relativePath,
+              line: i,
+              startChar: start,
+              endChar: start + macroName.length,
+            });
+          }
+
+          // @macroName パターン
+          atRegex.lastIndex = 0;
+          while ((match = atRegex.exec(line)) !== null) {
+            const start = match.index + 1; // "@" の次
+            results.push({
+              file: relativePath,
+              line: i,
+              startChar: start,
+              endChar: start + macroName.length,
+            });
+          }
+        }
+      } catch {
+        // 読み取りエラーは無視
+      }
+    }
+    return results;
+  }
+
+  /**
+   * data/ からの相対パスを file:// URI に変換する
+   */
+  resolveFilePath(relativePath: string): string {
+    const absPath = path.join(this.dataPath, relativePath);
+    return `file://${encodeURI(absPath)}`;
+  }
+
+  /**
+   * 正規表現の特殊文字をエスケープする
+   */
+  private escapeRegExp(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 }

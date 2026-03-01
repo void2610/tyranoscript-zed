@@ -12,12 +12,18 @@ import {
   MarkupKind,
   TextDocumentSyncKind,
   InsertTextFormat,
+  DefinitionParams,
+  ReferenceParams,
+  Location,
+  Range,
+  Position,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { TAG_DATABASE, TAG_NAMES, TagDefinition } from "./tagDatabase";
 import {
   WorkspaceScanner,
   TAG_STORAGE_MAPPING,
+  FileReference,
 } from "./workspaceScanner";
 
 // stdio接続でLSPサーバーを作成
@@ -42,6 +48,8 @@ connection.onInitialize((params: InitializeParams): InitializeResult => {
         resolveProvider: false,
       },
       hoverProvider: true,
+      definitionProvider: true,
+      referencesProvider: true,
     },
   };
 });
@@ -341,6 +349,234 @@ connection.onCompletion(
     }
 
     return [];
+  }
+);
+
+/** 定義ジャンプ・参照検索の対象種別 */
+interface DefinitionContext {
+  kind: "label" | "macro" | "file";
+  name: string;
+}
+
+/**
+ * カーソル位置がジャンプ可能な要素上にあるかを判定する
+ * label: target="*xxx" のラベル参照
+ * macro: [xxx ...] / @xxx でTAG_DATABASEに無いタグ名（＝マクロ）
+ * file: storage="xxx.ks" のファイル参照
+ */
+function getDefinitionContext(
+  lineText: string,
+  character: number
+): DefinitionContext | null {
+  // 1. パラメータ値内の判定（target / storage）
+  const valueCtx = getParamValueContext(lineText, character);
+  if (valueCtx) {
+    // currentValue はカーソル位置までの部分文字列なので、
+    // 閉じクォートまでを結合して完全な値を取得する
+    const afterCursor = lineText.substring(character);
+    const closingQuoteIdx = afterCursor.indexOf('"');
+    const fullValue =
+      closingQuoteIdx >= 0
+        ? valueCtx.currentValue + afterCursor.substring(0, closingQuoteIdx)
+        : valueCtx.currentValue;
+
+    if (valueCtx.paramName === "target" && fullValue.startsWith("*")) {
+      return { kind: "label", name: fullValue.substring(1) };
+    }
+    if (valueCtx.paramName === "storage" && fullValue.length > 0) {
+      return { kind: "file", name: fullValue };
+    }
+    return null;
+  }
+
+  // 2. タグ名の判定
+  const tagCtx = getTagContext(lineText, character);
+  if (tagCtx && !tagCtx.isInParams) {
+    // getTagContext はカーソル位置までしか tagName を取得しないため、
+    // カーソル以降の単語文字を結合して完全なタグ名を復元する
+    const afterCursor = lineText.substring(character);
+    const remainingWord = afterCursor.match(/^(\w*)/)?.[1] ?? "";
+    const fullTagName = tagCtx.tagName + remainingWord;
+
+    // TAG_DATABASE に無い → ユーザー定義マクロの可能性
+    if (!TAG_DATABASE.has(fullTagName)) {
+      return { kind: "macro", name: fullTagName };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * FileReference を LSP の Location に変換する
+ */
+function refToLocation(ref: FileReference): Location {
+  return {
+    uri: scanner.resolveFilePath(ref.file),
+    range: Range.create(
+      Position.create(ref.line, ref.startChar),
+      Position.create(ref.line, ref.endChar)
+    ),
+  };
+}
+
+// 定義ジャンプハンドラ
+connection.onDefinition(
+  (params: DefinitionParams): Location | null => {
+    const document = documents.get(params.textDocument.uri);
+    if (!document) return null;
+
+    const lineText = document
+      .getText({
+        start: { line: params.position.line, character: 0 },
+        end: { line: params.position.line + 1, character: 0 },
+      })
+      .replace(/\n$/, "");
+
+    const ctx = getDefinitionContext(lineText, params.position.character);
+    if (!ctx) return null;
+
+    switch (ctx.kind) {
+      case "label": {
+        // ラベル定義へジャンプ
+        const label = scanner.getLabels().find((l) => l.name === ctx.name);
+        if (!label) return null;
+        return {
+          uri: scanner.resolveFilePath(label.file),
+          range: Range.create(
+            Position.create(label.line, 0),
+            Position.create(label.line, label.name.length + 1) // +1 は "*" の分
+          ),
+        };
+      }
+      case "file": {
+        // ファイルの先頭へジャンプ
+        // storage のタグ名に応じたカテゴリでパスを解決
+        const tagCtx = getTagContext(lineText, params.position.character);
+        if (!tagCtx) return null;
+        const category = TAG_STORAGE_MAPPING.get(tagCtx.tagName);
+        if (!category) return null;
+        const filePath = `${category}/${ctx.name}`;
+        return {
+          uri: scanner.resolveFilePath(filePath),
+          range: Range.create(Position.create(0, 0), Position.create(0, 0)),
+        };
+      }
+      case "macro": {
+        // マクロ定義へジャンプ
+        const macro = scanner
+          .getMacros()
+          .find((m) => m.name === ctx.name);
+        if (!macro) return null;
+        return {
+          uri: scanner.resolveFilePath(macro.file),
+          range: Range.create(
+            Position.create(macro.line, 0),
+            Position.create(macro.line, 0)
+          ),
+        };
+      }
+    }
+  }
+);
+
+/**
+ * カーソル位置がラベル定義行 (*xxx) にあるかを判定する
+ */
+function getLabelDefinitionAtCursor(
+  lineText: string,
+  character: number
+): string | null {
+  const match = lineText.match(/^\*(\w+)/);
+  if (match && character <= match[0].length) {
+    return match[1];
+  }
+  return null;
+}
+
+/**
+ * カーソル位置がマクロ定義行 ([macro name="xxx"]) にあるかを判定する
+ */
+function getMacroDefinitionAtCursor(lineText: string): string | null {
+  const match = lineText.match(/\[macro\s+name\s*=\s*"(\w+)"\s*\]/i);
+  if (match) {
+    return match[1];
+  }
+  return null;
+}
+
+// 参照検索ハンドラ
+connection.onReferences(
+  (params: ReferenceParams): Location[] => {
+    const document = documents.get(params.textDocument.uri);
+    if (!document) return [];
+
+    const lineText = document
+      .getText({
+        start: { line: params.position.line, character: 0 },
+        end: { line: params.position.line + 1, character: 0 },
+      })
+      .replace(/\n$/, "");
+
+    const character = params.position.character;
+    const results: Location[] = [];
+
+    // 1. ラベル定義行 (*xxx) → 全参照を返す
+    const labelDef = getLabelDefinitionAtCursor(lineText, character);
+    if (labelDef) {
+      const refs = scanner.findLabelReferences(labelDef);
+      return refs.map(refToLocation);
+    }
+
+    // 2. マクロ定義行 ([macro name="xxx"]) → 全使用箇所を返す
+    const macroDef = getMacroDefinitionAtCursor(lineText);
+    if (macroDef) {
+      const refs = scanner.findMacroReferences(macroDef);
+      return refs.map(refToLocation);
+    }
+
+    // 3. ラベル参照 (target="*xxx") → 定義 + 他の参照箇所
+    const defCtx = getDefinitionContext(lineText, character);
+    if (defCtx) {
+      if (defCtx.kind === "label") {
+        // 定義箇所を追加
+        const label = scanner.getLabels().find((l) => l.name === defCtx.name);
+        if (label) {
+          results.push({
+            uri: scanner.resolveFilePath(label.file),
+            range: Range.create(
+              Position.create(label.line, 0),
+              Position.create(label.line, label.name.length + 1)
+            ),
+          });
+        }
+        // 全参照箇所を追加
+        const refs = scanner.findLabelReferences(defCtx.name);
+        results.push(...refs.map(refToLocation));
+        return results;
+      }
+
+      // 4. マクロ使用 ([xxx] / @xxx) → 定義 + 他の使用箇所
+      if (defCtx.kind === "macro") {
+        // 定義箇所を追加
+        const macro = scanner.getMacros().find((m) => m.name === defCtx.name);
+        if (macro) {
+          results.push({
+            uri: scanner.resolveFilePath(macro.file),
+            range: Range.create(
+              Position.create(macro.line, 0),
+              Position.create(macro.line, 0)
+            ),
+          });
+        }
+        // 全使用箇所を追加
+        const refs = scanner.findMacroReferences(defCtx.name);
+        results.push(...refs.map(refToLocation));
+        return results;
+      }
+    }
+
+    return results;
   }
 );
 

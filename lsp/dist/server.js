@@ -3371,8 +3371,8 @@ var require_main2 = __commonJS({
         }
         uinteger2.is = is;
       })(uinteger || (exports3.uinteger = uinteger = {}));
-      var Position;
-      (function(Position2) {
+      var Position2;
+      (function(Position3) {
         function create(line, character) {
           if (line === Number.MAX_VALUE) {
             line = uinteger.MAX_VALUE;
@@ -3382,43 +3382,43 @@ var require_main2 = __commonJS({
           }
           return { line, character };
         }
-        Position2.create = create;
+        Position3.create = create;
         function is(value) {
           var candidate = value;
           return Is.objectLiteral(candidate) && Is.uinteger(candidate.line) && Is.uinteger(candidate.character);
         }
-        Position2.is = is;
-      })(Position || (exports3.Position = Position = {}));
-      var Range;
-      (function(Range2) {
+        Position3.is = is;
+      })(Position2 || (exports3.Position = Position2 = {}));
+      var Range2;
+      (function(Range3) {
         function create(one, two, three, four) {
           if (Is.uinteger(one) && Is.uinteger(two) && Is.uinteger(three) && Is.uinteger(four)) {
-            return { start: Position.create(one, two), end: Position.create(three, four) };
-          } else if (Position.is(one) && Position.is(two)) {
+            return { start: Position2.create(one, two), end: Position2.create(three, four) };
+          } else if (Position2.is(one) && Position2.is(two)) {
             return { start: one, end: two };
           } else {
             throw new Error("Range#create called with invalid arguments[".concat(one, ", ").concat(two, ", ").concat(three, ", ").concat(four, "]"));
           }
         }
-        Range2.create = create;
+        Range3.create = create;
         function is(value) {
           var candidate = value;
-          return Is.objectLiteral(candidate) && Position.is(candidate.start) && Position.is(candidate.end);
+          return Is.objectLiteral(candidate) && Position2.is(candidate.start) && Position2.is(candidate.end);
         }
-        Range2.is = is;
-      })(Range || (exports3.Range = Range = {}));
-      var Location;
-      (function(Location2) {
+        Range3.is = is;
+      })(Range2 || (exports3.Range = Range2 = {}));
+      var Location2;
+      (function(Location3) {
         function create(uri, range) {
           return { uri, range };
         }
-        Location2.create = create;
+        Location3.create = create;
         function is(value) {
           var candidate = value;
-          return Is.objectLiteral(candidate) && Range.is(candidate.range) && (Is.string(candidate.uri) || Is.undefined(candidate.uri));
+          return Is.objectLiteral(candidate) && Range2.is(candidate.range) && (Is.string(candidate.uri) || Is.undefined(candidate.uri));
         }
-        Location2.is = is;
-      })(Location || (exports3.Location = Location = {}));
+        Location3.is = is;
+      })(Location2 || (exports3.Location = Location2 = {}));
       var LocationLink;
       (function(LocationLink2) {
         function create(targetUri, targetRange, targetSelectionRange, originSelectionRange) {
@@ -3427,7 +3427,7 @@ var require_main2 = __commonJS({
         LocationLink2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.objectLiteral(candidate) && Range.is(candidate.targetRange) && Is.string(candidate.targetUri) && Range.is(candidate.targetSelectionRange) && (Range.is(candidate.originSelectionRange) || Is.undefined(candidate.originSelectionRange));
+          return Is.objectLiteral(candidate) && Range2.is(candidate.targetRange) && Is.string(candidate.targetUri) && Range2.is(candidate.targetSelectionRange) && (Range2.is(candidate.originSelectionRange) || Is.undefined(candidate.originSelectionRange));
         }
         LocationLink2.is = is;
       })(LocationLink || (exports3.LocationLink = LocationLink = {}));
@@ -3459,7 +3459,7 @@ var require_main2 = __commonJS({
         ColorInformation2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.objectLiteral(candidate) && Range.is(candidate.range) && Color.is(candidate.color);
+          return Is.objectLiteral(candidate) && Range2.is(candidate.range) && Color.is(candidate.color);
         }
         ColorInformation2.is = is;
       })(ColorInformation || (exports3.ColorInformation = ColorInformation = {}));
@@ -3524,7 +3524,7 @@ var require_main2 = __commonJS({
         DiagnosticRelatedInformation2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.defined(candidate) && Location.is(candidate.location) && Is.string(candidate.message);
+          return Is.defined(candidate) && Location2.is(candidate.location) && Is.string(candidate.message);
         }
         DiagnosticRelatedInformation2.is = is;
       })(DiagnosticRelatedInformation || (exports3.DiagnosticRelatedInformation = DiagnosticRelatedInformation = {}));
@@ -3570,7 +3570,7 @@ var require_main2 = __commonJS({
         function is(value) {
           var _a;
           var candidate = value;
-          return Is.defined(candidate) && Range.is(candidate.range) && Is.string(candidate.message) && (Is.number(candidate.severity) || Is.undefined(candidate.severity)) && (Is.integer(candidate.code) || Is.string(candidate.code) || Is.undefined(candidate.code)) && (Is.undefined(candidate.codeDescription) || Is.string((_a = candidate.codeDescription) === null || _a === void 0 ? void 0 : _a.href)) && (Is.string(candidate.source) || Is.undefined(candidate.source)) && (Is.undefined(candidate.relatedInformation) || Is.typedArray(candidate.relatedInformation, DiagnosticRelatedInformation.is));
+          return Is.defined(candidate) && Range2.is(candidate.range) && Is.string(candidate.message) && (Is.number(candidate.severity) || Is.undefined(candidate.severity)) && (Is.integer(candidate.code) || Is.string(candidate.code) || Is.undefined(candidate.code)) && (Is.undefined(candidate.codeDescription) || Is.string((_a = candidate.codeDescription) === null || _a === void 0 ? void 0 : _a.href)) && (Is.string(candidate.source) || Is.undefined(candidate.source)) && (Is.undefined(candidate.relatedInformation) || Is.typedArray(candidate.relatedInformation, DiagnosticRelatedInformation.is));
         }
         Diagnostic2.is = is;
       })(Diagnostic || (exports3.Diagnostic = Diagnostic = {}));
@@ -3610,7 +3610,7 @@ var require_main2 = __commonJS({
         TextEdit2.del = del;
         function is(value) {
           var candidate = value;
-          return Is.objectLiteral(candidate) && Is.string(candidate.newText) && Range.is(candidate.range);
+          return Is.objectLiteral(candidate) && Is.string(candidate.newText) && Range2.is(candidate.range);
         }
         TextEdit2.is = is;
       })(TextEdit || (exports3.TextEdit = TextEdit = {}));
@@ -4154,7 +4154,7 @@ var require_main2 = __commonJS({
         InsertReplaceEdit2.create = create;
         function is(value) {
           var candidate = value;
-          return candidate && Is.string(candidate.newText) && Range.is(candidate.insert) && Range.is(candidate.replace);
+          return candidate && Is.string(candidate.newText) && Range2.is(candidate.insert) && Range2.is(candidate.replace);
         }
         InsertReplaceEdit2.is = is;
       })(InsertReplaceEdit || (exports3.InsertReplaceEdit = InsertReplaceEdit = {}));
@@ -4201,7 +4201,7 @@ var require_main2 = __commonJS({
       (function(Hover3) {
         function is(value) {
           var candidate = value;
-          return !!candidate && Is.objectLiteral(candidate) && (MarkupContent.is(candidate.contents) || MarkedString.is(candidate.contents) || Is.typedArray(candidate.contents, MarkedString.is)) && (value.range === void 0 || Range.is(value.range));
+          return !!candidate && Is.objectLiteral(candidate) && (MarkupContent.is(candidate.contents) || MarkedString.is(candidate.contents) || Is.typedArray(candidate.contents, MarkedString.is)) && (value.range === void 0 || Range2.is(value.range));
         }
         Hover3.is = is;
       })(Hover2 || (exports3.Hover = Hover2 = {}));
@@ -4322,7 +4322,7 @@ var require_main2 = __commonJS({
         DocumentSymbol2.create = create;
         function is(value) {
           var candidate = value;
-          return candidate && Is.string(candidate.name) && Is.number(candidate.kind) && Range.is(candidate.range) && Range.is(candidate.selectionRange) && (candidate.detail === void 0 || Is.string(candidate.detail)) && (candidate.deprecated === void 0 || Is.boolean(candidate.deprecated)) && (candidate.children === void 0 || Array.isArray(candidate.children)) && (candidate.tags === void 0 || Array.isArray(candidate.tags));
+          return candidate && Is.string(candidate.name) && Is.number(candidate.kind) && Range2.is(candidate.range) && Range2.is(candidate.selectionRange) && (candidate.detail === void 0 || Is.string(candidate.detail)) && (candidate.deprecated === void 0 || Is.boolean(candidate.deprecated)) && (candidate.children === void 0 || Array.isArray(candidate.children)) && (candidate.tags === void 0 || Array.isArray(candidate.tags));
         }
         DocumentSymbol2.is = is;
       })(DocumentSymbol || (exports3.DocumentSymbol = DocumentSymbol = {}));
@@ -4399,7 +4399,7 @@ var require_main2 = __commonJS({
         CodeLens2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.defined(candidate) && Range.is(candidate.range) && (Is.undefined(candidate.command) || Command.is(candidate.command));
+          return Is.defined(candidate) && Range2.is(candidate.range) && (Is.undefined(candidate.command) || Command.is(candidate.command));
         }
         CodeLens2.is = is;
       })(CodeLens || (exports3.CodeLens = CodeLens = {}));
@@ -4423,7 +4423,7 @@ var require_main2 = __commonJS({
         DocumentLink2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.defined(candidate) && Range.is(candidate.range) && (Is.undefined(candidate.target) || Is.string(candidate.target));
+          return Is.defined(candidate) && Range2.is(candidate.range) && (Is.undefined(candidate.target) || Is.string(candidate.target));
         }
         DocumentLink2.is = is;
       })(DocumentLink || (exports3.DocumentLink = DocumentLink = {}));
@@ -4435,7 +4435,7 @@ var require_main2 = __commonJS({
         SelectionRange2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.objectLiteral(candidate) && Range.is(candidate.range) && (candidate.parent === void 0 || SelectionRange2.is(candidate.parent));
+          return Is.objectLiteral(candidate) && Range2.is(candidate.range) && (candidate.parent === void 0 || SelectionRange2.is(candidate.parent));
         }
         SelectionRange2.is = is;
       })(SelectionRange || (exports3.SelectionRange = SelectionRange = {}));
@@ -4494,7 +4494,7 @@ var require_main2 = __commonJS({
         InlineValueText2.create = create;
         function is(value) {
           var candidate = value;
-          return candidate !== void 0 && candidate !== null && Range.is(candidate.range) && Is.string(candidate.text);
+          return candidate !== void 0 && candidate !== null && Range2.is(candidate.range) && Is.string(candidate.text);
         }
         InlineValueText2.is = is;
       })(InlineValueText || (exports3.InlineValueText = InlineValueText = {}));
@@ -4506,7 +4506,7 @@ var require_main2 = __commonJS({
         InlineValueVariableLookup2.create = create;
         function is(value) {
           var candidate = value;
-          return candidate !== void 0 && candidate !== null && Range.is(candidate.range) && Is.boolean(candidate.caseSensitiveLookup) && (Is.string(candidate.variableName) || candidate.variableName === void 0);
+          return candidate !== void 0 && candidate !== null && Range2.is(candidate.range) && Is.boolean(candidate.caseSensitiveLookup) && (Is.string(candidate.variableName) || candidate.variableName === void 0);
         }
         InlineValueVariableLookup2.is = is;
       })(InlineValueVariableLookup || (exports3.InlineValueVariableLookup = InlineValueVariableLookup = {}));
@@ -4518,7 +4518,7 @@ var require_main2 = __commonJS({
         InlineValueEvaluatableExpression2.create = create;
         function is(value) {
           var candidate = value;
-          return candidate !== void 0 && candidate !== null && Range.is(candidate.range) && (Is.string(candidate.expression) || candidate.expression === void 0);
+          return candidate !== void 0 && candidate !== null && Range2.is(candidate.range) && (Is.string(candidate.expression) || candidate.expression === void 0);
         }
         InlineValueEvaluatableExpression2.is = is;
       })(InlineValueEvaluatableExpression || (exports3.InlineValueEvaluatableExpression = InlineValueEvaluatableExpression = {}));
@@ -4530,7 +4530,7 @@ var require_main2 = __commonJS({
         InlineValueContext2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.defined(candidate) && Range.is(value.stoppedLocation);
+          return Is.defined(candidate) && Range2.is(value.stoppedLocation);
         }
         InlineValueContext2.is = is;
       })(InlineValueContext || (exports3.InlineValueContext = InlineValueContext = {}));
@@ -4551,7 +4551,7 @@ var require_main2 = __commonJS({
         InlayHintLabelPart2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.objectLiteral(candidate) && (candidate.tooltip === void 0 || Is.string(candidate.tooltip) || MarkupContent.is(candidate.tooltip)) && (candidate.location === void 0 || Location.is(candidate.location)) && (candidate.command === void 0 || Command.is(candidate.command));
+          return Is.objectLiteral(candidate) && (candidate.tooltip === void 0 || Is.string(candidate.tooltip) || MarkupContent.is(candidate.tooltip)) && (candidate.location === void 0 || Location2.is(candidate.location)) && (candidate.command === void 0 || Command.is(candidate.command));
         }
         InlayHintLabelPart2.is = is;
       })(InlayHintLabelPart || (exports3.InlayHintLabelPart = InlayHintLabelPart = {}));
@@ -4567,7 +4567,7 @@ var require_main2 = __commonJS({
         InlayHint2.create = create;
         function is(value) {
           var candidate = value;
-          return Is.objectLiteral(candidate) && Position.is(candidate.position) && (Is.string(candidate.label) || Is.typedArray(candidate.label, InlayHintLabelPart.is)) && (candidate.kind === void 0 || InlayHintKind.is(candidate.kind)) && candidate.textEdits === void 0 || Is.typedArray(candidate.textEdits, TextEdit.is) && (candidate.tooltip === void 0 || Is.string(candidate.tooltip) || MarkupContent.is(candidate.tooltip)) && (candidate.paddingLeft === void 0 || Is.boolean(candidate.paddingLeft)) && (candidate.paddingRight === void 0 || Is.boolean(candidate.paddingRight));
+          return Is.objectLiteral(candidate) && Position2.is(candidate.position) && (Is.string(candidate.label) || Is.typedArray(candidate.label, InlayHintLabelPart.is)) && (candidate.kind === void 0 || InlayHintKind.is(candidate.kind)) && candidate.textEdits === void 0 || Is.typedArray(candidate.textEdits, TextEdit.is) && (candidate.tooltip === void 0 || Is.string(candidate.tooltip) || MarkupContent.is(candidate.tooltip)) && (candidate.paddingLeft === void 0 || Is.boolean(candidate.paddingLeft)) && (candidate.paddingRight === void 0 || Is.boolean(candidate.paddingRight));
         }
         InlayHint2.is = is;
       })(InlayHint || (exports3.InlayHint = InlayHint = {}));
@@ -4756,7 +4756,7 @@ var require_main2 = __commonJS({
             var lineOffsets = this.getLineOffsets();
             var low = 0, high = lineOffsets.length;
             if (high === 0) {
-              return Position.create(0, offset);
+              return Position2.create(0, offset);
             }
             while (low < high) {
               var mid = Math.floor((low + high) / 2);
@@ -4767,7 +4767,7 @@ var require_main2 = __commonJS({
               }
             }
             var line = low - 1;
-            return Position.create(line, offset - lineOffsets[line]);
+            return Position2.create(line, offset - lineOffsets[line]);
           };
           FullTextDocument3.prototype.offsetAt = function(position) {
             var lineOffsets = this.getLineOffsets();
@@ -12230,10 +12230,20 @@ var WorkspaceScanner = class {
       }
       const macroMatch = line.match(/\[macro\s+name\s*=\s*"(\w+)"\s*\]/i);
       if (macroMatch) {
+        const commentLines = [];
+        for (let j = i - 1; j >= 0; j--) {
+          const commentMatch = lines[j].match(/^;\s?(.*)/);
+          if (commentMatch) {
+            commentLines.unshift(commentMatch[1]);
+          } else {
+            break;
+          }
+        }
         macros.push({
           name: macroMatch[1],
           file: relativePath,
-          line: i
+          line: i,
+          description: commentLines.join("\n")
         });
       }
     }
@@ -12299,6 +12309,113 @@ var WorkspaceScanner = class {
   isInitialized() {
     return this.initialized;
   }
+  /**
+   * 全 .ks ファイルから target="*labelName" の参照箇所を検索する
+   */
+  findLabelReferences(labelName) {
+    if (!this.initialized) return [];
+    const results = [];
+    const scenarioPath = path.join(this.dataPath, "scenario");
+    if (!fs.existsSync(scenarioPath)) return results;
+    const ksFiles = this.findKsFiles(scenarioPath);
+    const regex = new RegExp(
+      `target\\s*=\\s*"\\*${this.escapeRegExp(labelName)}"`,
+      "g"
+    );
+    for (const filePath of ksFiles) {
+      try {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const lines = content.split("\n");
+        const relativePath = path.relative(this.dataPath, filePath);
+        for (let i = 0; i < lines.length; i++) {
+          let match;
+          regex.lastIndex = 0;
+          while ((match = regex.exec(lines[i])) !== null) {
+            const valueStart = lines[i].indexOf(`*${labelName}`, match.index);
+            results.push({
+              file: relativePath,
+              line: i,
+              startChar: valueStart,
+              endChar: valueStart + labelName.length + 1
+              // +1 は "*" の分
+            });
+          }
+        }
+      } catch {
+      }
+    }
+    return results;
+  }
+  /**
+   * 全 .ks ファイルからマクロの使用箇所を検索する
+   * [macroName ...] または @macroName 形式にマッチし、定義行 [macro name="..."] は除外する
+   */
+  findMacroReferences(macroName) {
+    if (!this.initialized) return [];
+    const results = [];
+    const scenarioPath = path.join(this.dataPath, "scenario");
+    if (!fs.existsSync(scenarioPath)) return results;
+    const ksFiles = this.findKsFiles(scenarioPath);
+    const bracketRegex = new RegExp(
+      `\\[${this.escapeRegExp(macroName)}(?=[\\s\\]]|$)`,
+      "g"
+    );
+    const atRegex = new RegExp(
+      `^@${this.escapeRegExp(macroName)}(?=[\\s]|$)`,
+      "g"
+    );
+    const defRegex = new RegExp(
+      `\\[macro\\s+name\\s*=\\s*"${this.escapeRegExp(macroName)}"\\s*\\]`,
+      "i"
+    );
+    for (const filePath of ksFiles) {
+      try {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const lines = content.split("\n");
+        const relativePath = path.relative(this.dataPath, filePath);
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          if (defRegex.test(line)) continue;
+          bracketRegex.lastIndex = 0;
+          let match;
+          while ((match = bracketRegex.exec(line)) !== null) {
+            const start = match.index + 1;
+            results.push({
+              file: relativePath,
+              line: i,
+              startChar: start,
+              endChar: start + macroName.length
+            });
+          }
+          atRegex.lastIndex = 0;
+          while ((match = atRegex.exec(line)) !== null) {
+            const start = match.index + 1;
+            results.push({
+              file: relativePath,
+              line: i,
+              startChar: start,
+              endChar: start + macroName.length
+            });
+          }
+        }
+      } catch {
+      }
+    }
+    return results;
+  }
+  /**
+   * data/ からの相対パスを file:// URI に変換する
+   */
+  resolveFilePath(relativePath) {
+    const absPath = path.join(this.dataPath, relativePath);
+    return `file://${encodeURI(absPath)}`;
+  }
+  /**
+   * 正規表現の特殊文字をエスケープする
+   */
+  escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
 };
 
 // src/server.ts
@@ -12319,7 +12436,9 @@ connection.onInitialize((params) => {
         triggerCharacters: ["[", "@", " ", '"'],
         resolveProvider: false
       },
-      hoverProvider: true
+      hoverProvider: true,
+      definitionProvider: true,
+      referencesProvider: true
     }
   };
 });
@@ -12458,12 +12577,12 @@ function createMacroCompletions(trigger) {
     return {
       label: macro.name,
       kind: import_node.CompletionItemKind.Function,
-      detail: `\u30DE\u30AF\u30ED (${macro.file})`,
+      detail: macro.description ? macro.description.split("\n")[0] : `\u30DE\u30AF\u30ED (${macro.file})`,
       documentation: {
         kind: import_node.MarkupKind.Markdown,
         value: `**[${macro.name}]** \u2014 \u30E6\u30FC\u30B6\u30FC\u5B9A\u7FA9\u30DE\u30AF\u30ED
 
-\u5B9A\u7FA9\u5143: \`${macro.file}\` (\u884C ${macro.line + 1})`
+${macro.description ? macro.description + "\n\n" : ""}\u5B9A\u7FA9\u5143: \`${macro.file}\` (\u884C ${macro.line + 1})`
       },
       insertText,
       insertTextFormat: import_node.InsertTextFormat.PlainText,
@@ -12527,6 +12646,158 @@ connection.onCompletion(
       return createParamCompletions(context.tagName, context.usedParams);
     }
     return [];
+  }
+);
+function getDefinitionContext(lineText, character) {
+  const valueCtx = getParamValueContext(lineText, character);
+  if (valueCtx) {
+    const afterCursor = lineText.substring(character);
+    const closingQuoteIdx = afterCursor.indexOf('"');
+    const fullValue = closingQuoteIdx >= 0 ? valueCtx.currentValue + afterCursor.substring(0, closingQuoteIdx) : valueCtx.currentValue;
+    if (valueCtx.paramName === "target" && fullValue.startsWith("*")) {
+      return { kind: "label", name: fullValue.substring(1) };
+    }
+    if (valueCtx.paramName === "storage" && fullValue.length > 0) {
+      return { kind: "file", name: fullValue };
+    }
+    return null;
+  }
+  const tagCtx = getTagContext(lineText, character);
+  if (tagCtx && !tagCtx.isInParams) {
+    const afterCursor = lineText.substring(character);
+    const remainingWord = afterCursor.match(/^(\w*)/)?.[1] ?? "";
+    const fullTagName = tagCtx.tagName + remainingWord;
+    if (!TAG_DATABASE.has(fullTagName)) {
+      return { kind: "macro", name: fullTagName };
+    }
+  }
+  return null;
+}
+function refToLocation(ref) {
+  return {
+    uri: scanner.resolveFilePath(ref.file),
+    range: import_node.Range.create(
+      import_node.Position.create(ref.line, ref.startChar),
+      import_node.Position.create(ref.line, ref.endChar)
+    )
+  };
+}
+connection.onDefinition(
+  (params) => {
+    const document = documents.get(params.textDocument.uri);
+    if (!document) return null;
+    const lineText = document.getText({
+      start: { line: params.position.line, character: 0 },
+      end: { line: params.position.line + 1, character: 0 }
+    }).replace(/\n$/, "");
+    const ctx = getDefinitionContext(lineText, params.position.character);
+    if (!ctx) return null;
+    switch (ctx.kind) {
+      case "label": {
+        const label = scanner.getLabels().find((l) => l.name === ctx.name);
+        if (!label) return null;
+        return {
+          uri: scanner.resolveFilePath(label.file),
+          range: import_node.Range.create(
+            import_node.Position.create(label.line, 0),
+            import_node.Position.create(label.line, label.name.length + 1)
+            // +1 は "*" の分
+          )
+        };
+      }
+      case "file": {
+        const tagCtx = getTagContext(lineText, params.position.character);
+        if (!tagCtx) return null;
+        const category = TAG_STORAGE_MAPPING.get(tagCtx.tagName);
+        if (!category) return null;
+        const filePath = `${category}/${ctx.name}`;
+        return {
+          uri: scanner.resolveFilePath(filePath),
+          range: import_node.Range.create(import_node.Position.create(0, 0), import_node.Position.create(0, 0))
+        };
+      }
+      case "macro": {
+        const macro = scanner.getMacros().find((m) => m.name === ctx.name);
+        if (!macro) return null;
+        return {
+          uri: scanner.resolveFilePath(macro.file),
+          range: import_node.Range.create(
+            import_node.Position.create(macro.line, 0),
+            import_node.Position.create(macro.line, 0)
+          )
+        };
+      }
+    }
+  }
+);
+function getLabelDefinitionAtCursor(lineText, character) {
+  const match = lineText.match(/^\*(\w+)/);
+  if (match && character <= match[0].length) {
+    return match[1];
+  }
+  return null;
+}
+function getMacroDefinitionAtCursor(lineText) {
+  const match = lineText.match(/\[macro\s+name\s*=\s*"(\w+)"\s*\]/i);
+  if (match) {
+    return match[1];
+  }
+  return null;
+}
+connection.onReferences(
+  (params) => {
+    const document = documents.get(params.textDocument.uri);
+    if (!document) return [];
+    const lineText = document.getText({
+      start: { line: params.position.line, character: 0 },
+      end: { line: params.position.line + 1, character: 0 }
+    }).replace(/\n$/, "");
+    const character = params.position.character;
+    const results = [];
+    const labelDef = getLabelDefinitionAtCursor(lineText, character);
+    if (labelDef) {
+      const refs = scanner.findLabelReferences(labelDef);
+      return refs.map(refToLocation);
+    }
+    const macroDef = getMacroDefinitionAtCursor(lineText);
+    if (macroDef) {
+      const refs = scanner.findMacroReferences(macroDef);
+      return refs.map(refToLocation);
+    }
+    const defCtx = getDefinitionContext(lineText, character);
+    if (defCtx) {
+      if (defCtx.kind === "label") {
+        const label = scanner.getLabels().find((l) => l.name === defCtx.name);
+        if (label) {
+          results.push({
+            uri: scanner.resolveFilePath(label.file),
+            range: import_node.Range.create(
+              import_node.Position.create(label.line, 0),
+              import_node.Position.create(label.line, label.name.length + 1)
+            )
+          });
+        }
+        const refs = scanner.findLabelReferences(defCtx.name);
+        results.push(...refs.map(refToLocation));
+        return results;
+      }
+      if (defCtx.kind === "macro") {
+        const macro = scanner.getMacros().find((m) => m.name === defCtx.name);
+        if (macro) {
+          results.push({
+            uri: scanner.resolveFilePath(macro.file),
+            range: import_node.Range.create(
+              import_node.Position.create(macro.line, 0),
+              import_node.Position.create(macro.line, 0)
+            )
+          });
+        }
+        const refs = scanner.findMacroReferences(defCtx.name);
+        results.push(...refs.map(refToLocation));
+        return results;
+      }
+    }
+    return results;
   }
 );
 connection.onHover(

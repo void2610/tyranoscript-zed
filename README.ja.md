@@ -14,8 +14,8 @@
 - `target=""` でラベル補完
 - ユーザー定義マクロの補完
 - ホバーによるタグ・パラメータのドキュメント表示（Language Server）
-- 定義へジャンプ（Go to Definition）— ラベル・マクロ・シナリオファイル
-- 参照検索（Find References）— ラベル・マクロの全使用箇所
+- 定義へジャンプ（Go to Definition）— ラベル・JS 内のラベル呼び出し・マクロ・シナリオファイル・`tf.xxx`
+- 参照検索（Find References）— ラベル・JS 内のラベル呼び出し・マクロ・`tf.xxx` の全使用箇所
 - 診断（Diagnostics）
   - 必須パラメータ欠落（エラー）
   - 存在しないファイル参照（警告）

@@ -14,8 +14,8 @@ Language support for [TyranoScript](https://tyrano.jp/) (`.ks` files) in the [Ze
 - Label completion for `target=""`
 - User-defined macro completion
 - Hover documentation for tags and parameters
-- Go to Definition — labels, macros, scenario files
-- Find References — all usages of labels and macros
+- Go to Definition — labels, JS label calls, macros, scenario files, and `tf.xxx`
+- Find References — all usages of labels, JS label calls, macros, and `tf.xxx`
 - Diagnostics
   - Missing required parameters (error)
   - Missing file references (warning)

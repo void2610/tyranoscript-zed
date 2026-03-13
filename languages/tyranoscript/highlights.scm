@@ -40,6 +40,10 @@
 ; インラインテキスト
 (inline_text) @operator
 
-; スクリプトブロックの開始・終了タグ
-(script_block "[iscript]" @keyword)
-(script_block "[endscript]" @keyword)
+; スクリプトブロックの開始・終了タグ（括弧は punctuation、キーワード部分は keyword）
+(iscript_open "[" @punctuation.bracket)
+(iscript_open "iscript" @keyword)
+(iscript_open "]" @punctuation.bracket)
+(endscript_close "[" @punctuation.bracket)
+(endscript_close "endscript" @keyword)
+(endscript_close "]" @punctuation.bracket)

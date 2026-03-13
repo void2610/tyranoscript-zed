@@ -17,7 +17,8 @@
  (#match? @keyword "^(l|p|r|er|ct|cm|wd|wait)$"))
 
 ; 属性名
-(attribute_name) @property
+; @property は一部テーマでデフォルト色と区別しにくいため @type を使用
+(attribute_name) @type
 
 ; 属性値
 (quoted_string) @string
@@ -25,20 +26,22 @@
 (at_unquoted_value) @string.special
 
 ; 話者表示（#記号と話者名を同じ色に）
-(speaker) @punctuation.special
+; @punctuation.special は一部テーマで未定義のため @text.literal を使用
+(speaker) @text.literal
 
 ; コメント
 (comment) @comment
 
 ; ラベル
-(label) @label
-(label_name) @label
+; @label は一部テーマで未定義のため @enum を使用
+(label) @enum
+(label_name) @enum
 
 ; テキスト行
-(text_line) @operator
+(text_line) @attribute
 
 ; インラインテキスト
-(inline_text) @operator
+(inline_text) @attribute
 
 ; スクリプトブロックの開始・終了タグ（括弧は punctuation、キーワード部分は keyword）
 (iscript_open "[" @punctuation.bracket)
